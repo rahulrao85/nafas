@@ -1,4 +1,4 @@
-"""Swappable language-model providers. Choose with NAFAS_LLM = claude (default) | azure | offline."""
+"""Swappable language-model providers. Choose with NAFAS_LLM = claude (default) | gemini | azure | offline."""
 
 from __future__ import annotations
 
@@ -13,6 +13,9 @@ def get_provider(name: str | None = None) -> LLMProvider:
     if name == "claude":
         from .claude import ClaudeProvider
         p = ClaudeProvider()
+    elif name == "gemini":
+        from .gemini import GeminiProvider
+        p = GeminiProvider()
     elif name == "azure":
         from .azure import AzureOpenAIProvider
         p = AzureOpenAIProvider()

@@ -169,6 +169,9 @@ details p { margin: var(--space-2) 0 0; }
 
 .coach-out { white-space: pre-wrap; background: var(--bg-inset); border-radius: var(--radius-sm); padding: var(--space-4); margin-bottom: var(--space-4); font-size: var(--text-base); }
 .coach-out:empty { display: none; }
+.ask-form { display: flex; gap: var(--space-2); margin: var(--space-3) 0; }
+.ask-form .input { flex: 1 1 auto; }
+#askOut:not(:empty) { margin-top: var(--space-2); }
 
 /* Chart */
 .chart { width: 100%; overflow: hidden; }

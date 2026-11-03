@@ -11,6 +11,7 @@
 | High residual AHI goes to a human | `engine.detect_clinical` → fixed care-team wording, never sent through the LLM | `test_state_and_loop_endpoints` |
 | Emergencies are not coached | Notes mentioning chest pain, trouble breathing, fainting or self-harm (English and Arabic) show an emergency message with the UAE number 998 | `test_crisis_notes_get_an_emergency_message` |
 | The LLM can't decide anything | It receives a fact brief and returns text. Detection, barrier, step and escalation all happen before it is called | `test_coach_*` |
+| Q&A can't make clinical calls | Emergency and clinical-decision questions (EN + AR) are routed before any model call to fixed answers; the model sees only a numbers-only fact pack; answers with pressure advice, diagnosis, medication, blame, links, invented numbers or a cut-off are replaced by a data summary | `tests/test_qa.py`; benchmark suite `qa` (31/31); live `scripts/qa_eval.py` (11/11) |
 | No hidden failure | Any LLM error, refusal or failed check shows the reviewed template, with the reason | `test_coach_falls_back_*` |
 
 ## Responsible AI

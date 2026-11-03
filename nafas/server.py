@@ -16,7 +16,7 @@ from pathlib import Path
 from flask import Flask, jsonify, request, send_from_directory, session
 
 from . import actions as lib
-from . import coach, synthetic
+from . import coach, qa, synthetic
 from .barriers import BARRIERS
 from .barriers import label as barrier_label
 from .engine import fill_gaps, status_of
@@ -279,6 +279,17 @@ def create_app() -> Flask:
         data, _ = _persona(pid)
         r, _, _ = _result(pid, _as_of(data))
         return jsonify(coach.compose(r, get_provider(), body.get("lang")))
+
+    @app.post("/api/ask")
+    def ask():
+        """Q&A about the person's own data: routed, grounded and checked (see qa.py)."""
+        if _rate_limited():
+            return jsonify(error="Too many requests — try again in a minute."), 429
+        body = request.get_json(force=True)
+        pid = body["persona"]
+        data, _ = _persona(pid)
+        r, _, _ = _result(pid, _as_of(data))
+        return jsonify(qa.ask(r, str(body.get("question", "")), get_provider(), body.get("lang")))
 
     @app.get("/api/care-team-summary")
     def care_team_summary():

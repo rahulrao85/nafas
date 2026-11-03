@@ -18,7 +18,7 @@ The team lead has used CPAP nightly for two years. Every barrier in the library 
 
 > Prototype. Not a medical device and not medical advice. The demo uses **synthetic, fictional people only**.
 
-## Tested: 129 labelled cases, 89 of them hard
+## Tested: 160 labelled cases, 110 of them hard
 
 | What | Result |
 |---|---|
@@ -26,6 +26,8 @@ The team lead has used CPAP nightly for two years. Every barrier in the library 
 | High residual AHI → care-team flag | **100%** (12/12) |
 | Lapse, decline, leak and leak-creep detectors | 100% (26/26) |
 | Barrier inference, top-1 | 100% (14/14) |
+| Ask-your-data guardrails: question routing + checks on model answers | **100%** (31/31) |
+| Live Q&A with Gemini 3.5 Flash (14 questions, EN + AR) | 11/11 model answers passed every check; emergency, clinical and prompt-injection questions never reached the model ([results](docs/QA_EVAL_RESULTS.md)) |
 
 The hard cases are: missing fields, impossible values, wrong units, duplicate nights, gaps, mixed sources, negation, near-miss wording, and Arabic dialects. The scores above are after fixes. The first run scored 69/103. A held-out batch of emergency phrasings, run once untouched, caught only 8 of 15. Both are reported, with what was fixed, in [docs/BENCHMARK.md](docs/BENCHMARK.md); every case is listed in [docs/BENCHMARK_RESULTS.md](docs/BENCHMARK_RESULTS.md). Reproduce with `python scripts/benchmark.py`.
 
@@ -40,11 +42,11 @@ pip install -r requirements.txt
 python run.py                      # → http://127.0.0.1:5057
 ```
 
-No API key is needed: without one, coach notes come from the reviewed template. To have Claude word them, set `ANTHROPIC_API_KEY` (or run `ant auth login`). `NAFAS_LLM=azure` uses Azure OpenAI; `NAFAS_LLM=offline` forces the template. Any provider failure falls back to the template and says why.
+No API key is needed: without one, coach notes and answers come from the reviewed template. To use a model: Claude (default) via `ANTHROPIC_API_KEY` or `ant auth login`; Gemini with `NAFAS_LLM=gemini` plus `NAFAS_GEMINI_VERTEX_PROJECT` (Vertex AI through your gcloud login, no key stored) or `NAFAS_GEMINI_API_KEY`; `NAFAS_LLM=azure` for Azure OpenAI; `NAFAS_LLM=offline` forces the template. Any provider failure falls back to the template and says why (see `.env.example`).
 
 | Command | What |
 |---|---|
-| `python -m pytest -q` | 75 tests |
+| `python -m pytest -q` | 86 tests |
 | `python scripts/benchmark.py` | The labelled benchmark |
 | `python scripts/run_demo.py` | The loop in a terminal, no browser |
 | `python scripts/make_samples.py` | A synthetic sample file for every data source → `data/samples/` |
@@ -100,6 +102,7 @@ nafas/
   loop.py      the morning-by-morning loop, replayable
   coach.py     fact brief → LLM wording → safety check → template fallback
   safety.py    output rules; emergency wording (EN + AR)
+  qa.py        ask about your data: routed, grounded, checked
   benchmark.py labelled cases and scoring
   i18n.py      engine messages in English and Arabic
   weekly.py, outcomes.py, samples.py, synthetic.py, models.py
@@ -108,5 +111,5 @@ nafas/
   static/      single-page UI: light and dark, English and Arabic, 375 px and up
 scripts/       benchmark, run_demo, make_samples, generate_synthetic
 data/          synthetic personas and cohort; sample files for every source
-tests/         75 tests
+tests/         86 tests
 ```

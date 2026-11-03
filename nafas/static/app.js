@@ -74,6 +74,9 @@
       groups: { language: 'Language', age_band: 'Age band', shift_worker: 'Shift worker' },
       watch: 'Watch/ring', rhr: 'RHR', hrv: 'HRV',
       src: {},
+      ask_title: 'Ask about your data', ask_btn: 'Ask', ask_help: 'Answers come only from your own nights. Emergencies and clinical decisions are never answered by AI.',
+      ask_q: ['How did last week go?', 'Why this step?', 'What was my best run?', 'Is my leak getting better?'],
+      route_emergency: 'Emergency', route_care_team: 'For your care team', ai_checked: 'AI · checked', from_data: 'From your data',
       sev: { stop: 'needed', warn: 'check', info: 'note' }, checks_title: 'Data checks', no_usage: 'None of your CPAP files has a nightly-use value, and every decision Nafas makes needs it. Check the CSV has a usage_min (or usage_hours) column.',
     },
     ar: {
@@ -137,6 +140,9 @@
       c_small: 'عدد صغير', c_note: (m) => `تُحسب فجوات العدالة للمجموعات التي تضم ${m} شخصاً أو أكثر فقط. الصفات هنا موزعة عشوائياً، فأي فجوة هي صدفة، ولهذا يجب أن تحدد التجربة الفعلية مقارناتها مسبقاً وتصحح للاختبارات المتعددة.`,
       groups: { language: 'اللغة', age_band: 'الفئة العمرية', shift_worker: 'عامل مناوبات' },
       watch: 'الساعة/الخاتم', rhr: 'نبض الراحة', hrv: 'HRV',
+      ask_title: 'اسأل عن بياناتك', ask_btn: 'اسأل', ask_help: 'الإجابات من لياليك فقط. الطوارئ والقرارات الطبية لا يجيب عنها الذكاء الاصطناعي أبداً.',
+      ask_q: ['كيف كان الأسبوع الماضي؟', 'لماذا هذه الخطوة؟', 'ما أفضل سلسلة لي؟', 'هل يتحسن التسرب؟'],
+      route_emergency: 'طوارئ', route_care_team: 'لفريق الرعاية', ai_checked: 'ذكاء اصطناعي · تم الفحص', from_data: 'من بياناتك',
       sev: { stop: 'مطلوب', warn: 'تحقق', info: 'ملاحظة' }, checks_title: 'فحص البيانات', no_usage: 'لا يحتوي أي من ملفات CPAP على قيمة لمدة الاستخدام الليلي، وكل قرار في نَفَس يحتاجها. تأكد أن ملف CSV فيه عمود usage_min أو usage_hours.',
       src: { resmed_str: 'بطاقة ResMed ‏(STR.edf)', nafas_csv: 'CSV', nafas_json: 'JSON', garmin_fit: 'ساعة Garmin ‏(.fit)',
              gadgetbridge: 'تصدير Gadgetbridge', collector: 'خاتم ذكي (تصدير Collector)', apple_health: 'تصدير Apple Health',
@@ -232,8 +238,31 @@
     const llm = st.llm || {};
     $('#llmTag').textContent = llm.provider === 'offline' ? t('source_template') : `${llm.provider} · ${llm.model}`;
     $('#llmTag').title = llm.note || '';
+    renderAsk();
     renderStats(); renderBanners(); renderStep(); renderNoticed(); renderChips(); renderNudge();
     renderChart(); renderWeekly(); renderHistory(); renderLearner(); renderPersonOutcomes();
+  }
+
+  function renderAsk() {
+    const llm = S.state.llm || {};
+    $('#askTag').textContent = llm.provider === 'offline' ? t('source_template') : `${llm.provider} · ${llm.model}`;
+    $('#askChips').innerHTML = t('ask_q').map((q) => `<button type="button" class="chip">${esc(q)}</button>`).join('');
+    $$('#askChips .chip').forEach((c) => c.addEventListener('click', () => { $('#askInput').value = c.textContent; askNow(); }));
+  }
+
+  async function askNow() {
+    const q = $('#askInput').value.trim(), out = $('#askOut');
+    if (!q) return;
+    out.textContent = t('loading');
+    try {
+      const r = await post('/api/ask', { persona: S.persona, as_of: asOf(), question: q, lang: S.lang });
+      const badge = r.route === 'emergency' ? `<span class="tag tag-danger">${esc(t('route_emergency'))}</span>`
+        : r.route === 'care_team' ? `<span class="tag tag-warning">${esc(t('route_care_team'))}</span>`
+        : r.source.startsWith('llm') ? `<span class="tag tag-success">${esc(t('ai_checked'))} · ${esc(r.llm.model || '')}</span>`
+        : `<span class="tag">${esc(t('from_data'))}</span>`;
+      out.innerHTML = `<p class="small muted">${esc(r.question)}</p><div lang="${esc(r.lang)}" style="white-space:pre-line">${esc(r.answer)}</div>
+        <div class="tags" style="margin-top:var(--space-3)">${badge}${r.fallback_reason ? ` <span class="small muted">${esc(r.fallback_reason)}</span>` : ''}</div>`;
+    } catch (e) { out.textContent = e.message; }
   }
 
   function stat(label, value, sub, cls = '') {
@@ -497,6 +526,7 @@
     } catch (e) { out.textContent = e.message; }
     btn.disabled = false;
   });
+  $('#askForm').addEventListener('submit', (e) => { e.preventDefault(); askNow(); });
   $('#cohortBtn').addEventListener('click', async () => {
     const b = $('#cohortBtn'); b.disabled = true; $('#cohort').innerHTML = `<p class="muted">${esc(t('loading'))}</p>`;
     try { S.cohort = await api('/api/cohort'); renderCohort(); } catch (e) { $('#cohort').textContent = e.message; }

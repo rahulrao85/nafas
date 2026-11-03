@@ -16,6 +16,7 @@ except AttributeError:
 from nafas.benchmark import SAFETY_CRITICAL, run_all, score  # noqa: E402
 
 NAMES = {"crisis": "Emergency wording in notes (EN + AR)", "clinical": "Care-team flag (high residual AHI)",
+         "qa": "Ask-your-data guardrails (routing + output checks)",
          "detect": "Lapse / decline / leak / leak-creep detectors", "barrier": "Barrier inference (top-1)"}
 
 

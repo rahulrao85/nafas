@@ -88,6 +88,20 @@
             <div id="coachOut" class="coach-out" aria-live="polite"></div>
             <button class="btn btn-primary" id="coachBtn" type="button" data-i18n="coach_btn">Write tonight's note</button>
           </article>
+          <article class="card" id="askCard">
+            <div class="card-head">
+              <h2 data-i18n="ask_title">Ask about your data</h2>
+              <span class="tag" id="askTag"></span>
+            </div>
+            <p class="muted small" data-i18n="ask_help">Answers come only from your own nights. Emergencies and clinical decisions are never answered by AI.</p>
+            <div class="chips" id="askChips"></div>
+            <form id="askForm" class="ask-form">
+              <label class="sr-only" for="askInput" data-i18n="ask_title">Ask about your data</label>
+              <input class="input" id="askInput" maxlength="300" type="text" autocomplete="off">
+              <button class="btn btn-primary" type="submit" data-i18n="ask_btn">Ask</button>
+            </form>
+            <div id="askOut" class="coach-out" aria-live="polite"></div>
+          </article>
         </div>
         <div class="stack">
           <article class="card" id="noticedCard"></article>

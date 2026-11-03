@@ -20,11 +20,18 @@ python scripts/benchmark.py        # prints scores, writes docs/BENCHMARK_RESULT
 | Care-team flag: high residual AHI | **yes** | 12 (6) | **100%** |
 | Detectors: lapse, decline, large leak, leak creep | | 26 (16) | 100% |
 | Barrier inference, top-1 | | 14 (6) | 100% |
-| **All** | | **129 (89)** | **128 / 129** |
+| Ask-your-data guardrails: routing (emergency / care team / answer) + output checks on model answers | **yes** | 31 (21) | **100%** |
+| **All** | | **160 (110)** | **159 / 160** |
 
 The one failure is accepted on purpose. "Watched a film about someone who fainted" triggers the emergency notice. For emergencies we prefer a needless notice to a missed one.
 
-A test (`tests/test_benchmark_quality.py`) fails the build if emergency sensitivity drops below 100%, the care-team flag drops below 100%, or any case crashes.
+A test (`tests/test_benchmark_quality.py`) fails the build if emergency sensitivity, the care-team flag or the Q&A guardrails drop below 100%, or if any case crashes.
+
+**Q&A, live with a real model.** `python scripts/qa_eval.py` asks 14 fixed questions (English and Arabic) about the fictional personas. On 03-Nov-2026 with Gemini 3.5 Flash on Vertex AI: **11/11 model answers passed every output check**; the 3 emergency, stop-therapy and prompt-injection questions were answered by fixed text without calling the model. Earlier runs on the same day caught two problems now fixed:
+- the coach's "no cmH2O" rule wrongly blocked answers that read back a real pressure value (Q&A now blocks pressure *advice* only, and the grounding check proves values are real);
+- Gemini sometimes ran out of tokens mid-answer (cut-off answers are now rejected rather than shown, and the budget was raised).
+
+The Q&A suite was written after the guardrails were built, so it is a development set; the live run is the independent check. Results: [QA_EVAL_RESULTS.md](QA_EVAL_RESULTS.md).
 
 ## How it's built
 

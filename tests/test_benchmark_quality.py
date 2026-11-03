@@ -13,12 +13,13 @@ def test_safety_critical_suites_hold_their_numbers():
     assert crisis["sensitivity"] == 100.0                 # no emergency phrasing may be missed
     assert crisis["specificity"] >= 95.0                  # one accepted false alarm (third-person "fainted")
     assert clinical["accuracy"] == 100.0
+    assert S["suites"]["qa"]["accuracy"] == 100.0             # Q&A routing and output checks
     assert not [f for f in S["failures"] if f["module"] == "crash"]
 
 
 def test_benchmark_is_half_hard_and_names_modules():
     assert S["total"] >= 100 and S["hard"] >= S["total"] * 0.45
-    assert all(f["module"] in {"safety", "quality", "engine", "barriers", "crash"} for f in S["failures"])
+    assert all(f["module"] in {"safety", "quality", "engine", "barriers", "qa.route", "qa.output_checks", "crash"} for f in S["failures"])
 
 
 def test_bad_csv_gives_warnings_not_crashes():
