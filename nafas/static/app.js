@@ -260,7 +260,7 @@
         : r.route === 'care_team' ? `<span class="tag tag-warning">${esc(t('route_care_team'))}</span>`
         : r.source.startsWith('llm') ? `<span class="tag tag-success">${esc(t('ai_checked'))} · ${esc(r.llm.model || '')}</span>`
         : `<span class="tag">${esc(t('from_data'))}</span>`;
-      out.innerHTML = `<p class="small muted">${esc(r.question)}</p><div lang="${esc(r.lang)}" style="white-space:pre-line">${esc(r.answer)}</div>
+      out.innerHTML = `<p class="small muted">${esc(r.question)}</p><div lang="${esc(r.lang)}" style="white-space:pre-line">${esc(r.answer).replace(/\b\d{2}-[A-Z][a-z]{2}-\d{4}\b/g, '⁦$&⁩')}</div>
         <div class="tags" style="margin-top:var(--space-3)">${badge}${r.fallback_reason ? ` <span class="small muted">${esc(r.fallback_reason)}</span>` : ''}</div>`;
     } catch (e) { out.textContent = e.message; }
   }
