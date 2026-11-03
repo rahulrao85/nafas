@@ -5,6 +5,7 @@ State lives in memory, per browser session, and disappears when the server stops
 
 from __future__ import annotations
 
+import json
 import os
 import secrets
 import time
@@ -19,7 +20,9 @@ from . import coach, synthetic
 from .barriers import BARRIERS
 from .barriers import label as barrier_label
 from .engine import fill_gaps, status_of
-from .ingest import CSV_COLUMNS, load_bytes, to_csv
+from .ingest import CSV_COLUMNS, to_csv
+from .sources import ingest as ingest_sources
+from .i18n import dmy, tr
 from .llm import get_provider
 from .loop import run
 from .models import CheckIn, Profile
@@ -28,6 +31,8 @@ from .safety import crisis_check
 from .weekly import weekly_view
 
 STATIC = Path(__file__).parent / "static"
+MAX_UPLOAD_MB = 64
+MAX_FILES = 2500
 SETTINGS_FIELDS = {"goal_hours": float, "language": str, "nudges_enabled": bool, "nudge_hour": int,
                    "quiet_start": int, "quiet_end": int, "share_with_care_team": bool, "use_llm": bool}
 
@@ -95,6 +100,11 @@ def _rate_limited(limit: int = 20, window: int = 60) -> bool:
     return False
 
 
+def _story(data: dict, lang: str) -> str:
+    s = data.get("story", "")
+    return s.get(lang) or s.get("en", "") if isinstance(s, dict) else s
+
+
 def state_json(pid: str, as_of: date) -> dict:
     r, data, ov = _result(pid, as_of)
     lang = r.profile.language
@@ -105,7 +115,7 @@ def state_json(pid: str, as_of: date) -> dict:
                  if (r.as_of - date.fromisoformat(f["date"])).days <= 14), None)
     last = r.nights[-1]
     return {
-        "persona": {"id": pid, "display_name": r.profile.display_name, "story": data.get("story", ""),
+        "persona": {"id": pid, "display_name": r.profile.display_name, "story": _story(data, lang),
                     "notes": r.profile.notes, "mask_type": r.profile.mask_type,
                     "uploaded": pid in _SESSIONS[_sid()]["uploads"]},
         "profile": r.profile.to_dict(),
@@ -113,13 +123,13 @@ def state_json(pid: str, as_of: date) -> dict:
         "as_of": r.as_of.isoformat(),
         "last_night": {**last.to_dict(), "status": status_of(last, goal_min), "hours": round(last.usage_min / 60, 1)},
         "momentum": r.momentum,
-        "detections": [d.to_dict() for d in r.detections],
+        "detections": [d.to_dict(lang) for d in r.detections],
         "barriers": [b.to_dict(lang) for b in r.barriers],
         "intervention": iv.to_dict(lang) if iv else None,
         "recovery": {"active": True, **rec.to_dict(), "goal_text": lib.COMEBACK.get(lang, lib.COMEBACK["en"]),
                      "goal_min": lib.COMEBACK_GOAL_MIN} if rec else {"active": False},
-        "clinician_flag": flag,
-        "nudge": r.nudge,
+        "clinician_flag": {"date": flag["date"], "evidence": tr(flag["evidence"], lang)} if flag else None,
+        "nudge": {**r.nudge, "reason": tr(r.nudge.get("reason"), lang)},
         "weekly": weekly_view(r, 12),
         "series": [{"date": n.date.isoformat(), "hours": round(n.usage_min / 60, 2), "leak": n.leak95_lpm,
                     "ahi": n.ahi, "status": status_of(n, goal_min)} for n in r.nights[-90:]],
@@ -137,7 +147,8 @@ def state_json(pid: str, as_of: date) -> dict:
 def create_app() -> Flask:
     app = Flask(__name__, static_folder=None)
     app.secret_key = os.getenv("NAFAS_SECRET") or secrets.token_hex(32)
-    app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+    app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_MB * 1024 * 1024   # an SD-card or watch export zip
+    app.config["MAX_FORM_PARTS"] = 3000                               # a card folder picked file by file
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["SESSION_COOKIE_HTTPONLY"] = True
 
@@ -162,10 +173,10 @@ def create_app() -> Flask:
         out = []
         for pid in synthetic.PERSONAS:
             d = _base(pid)
-            out.append({"id": pid, "display_name": d["profile"].display_name, "story": d["story"],
+            out.append({"id": pid, "display_name": d["profile"].display_name, "story": _story(d, "en"),
                         "nights": len(d["nights"]), "synthetic": True})
         for pid, d in _SESSIONS[_sid()]["uploads"].items():
-            out.append({"id": pid, "display_name": d["profile"].display_name, "story": d["story"],
+            out.append({"id": pid, "display_name": d["profile"].display_name, "story": _story(d, "en"),
                         "nights": len(d["nights"]), "synthetic": False})
         return jsonify(personas=out, llm=get_provider().describe())
 
@@ -251,18 +262,48 @@ def create_app() -> Flask:
 
     @app.post("/api/upload")
     def upload():
-        f = request.files.get("file")
-        if not f or not f.filename:
-            raise ValueError("Choose a file to upload.")
-        nights = fill_gaps(load_bytes(f.filename, f.read()))
+        """Any mix of files and zips (a whole SD card, watch and ring exports). Detects, merges, reports."""
+        files = request.files.getlist("files") or request.files.getlist("file")
+        files = [f for f in files if f and f.filename]
+        if not files:
+            raise ValueError("Choose at least one file.")
+        if len(files) > MAX_FILES:
+            raise ValueError(f"Too many files at once (max {MAX_FILES}). Zip the folder instead.")
+        try:
+            paths = json.loads(request.form.get("paths") or "[]")
+            pre_skipped = json.loads(request.form.get("skipped") or "[]")[:500]
+            tz = int(request.form.get("tz_offset_min") or 0)
+        except (ValueError, TypeError):
+            raise ValueError("Bad upload form.")
+        tz = max(-14 * 60, min(14 * 60, tz))
+        items = []
+        for i, f in enumerate(files):
+            p = paths[i] if i < len(paths) and isinstance(paths[i], str) and paths[i] else f.filename
+            items.append((p[:300], f.read()))
+        pre = [{"file": str(s.get("file", ""))[:300], "reason": str(s.get("reason", "unknown"))[:40]}
+               for s in pre_skipped if isinstance(s, dict)]
+        return _store_upload(ingest_sources(items, tz_offset_min=tz, pre_skipped=pre), "Your data")
+
+    @app.post("/api/upload-samples")
+    def upload_samples():
+        """Demo: the same one-click path, fed with the synthetic sample file for every source."""
+        from .samples import build_all
+        return _store_upload(ingest_sources(list(build_all().items()), tz_offset_min=240), "Sample files")
+
+    def _store_upload(rep, name: str):
+        if rep.error:
+            return jsonify(persona=None, report=rep.to_dict()), 422
+        nights = rep.nights
         s = _SESSIONS[_sid()]
         pid = f"upload{len(s['uploads']) + 1}"
+        first, last = dmy(nights[0].date), dmy(nights[-1].date)
         s["uploads"][pid] = {
-            "profile": Profile(id=pid, display_name="Your data", notes="Uploaded this session; held in memory only."),
+            "profile": Profile(id=pid, display_name=name, notes="Uploaded this session; held in memory only."),
             "nights": nights, "checkins": [],
-            "story": f"Your upload: {len(nights)} nights, {nights[0].date:%d-%b-%Y} to {nights[-1].date:%d-%b-%Y}.",
+            "story": {"en": f"{name}: {len(nights)} nights, {first} to {last}.",
+                      "ar": f"{'بياناتك' if name == 'Your data' else 'ملفات نموذجية'}: {len(nights)} ليلة، من {first} إلى {last}."},
         }
-        return jsonify(persona=pid, nights=len(nights))
+        return jsonify(persona=pid, nights=len(nights), report=rep.to_dict())
 
     @app.get("/api/csv-template")
     def csv_template():

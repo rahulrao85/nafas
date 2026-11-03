@@ -11,6 +11,7 @@ from datetime import timedelta
 from statistics import median
 
 from .engine import ADHERENT_MIN, LARGE_LEAK_LPM, Detection
+from .i18n import Msg, tr
 from .models import CheckIn, Night, Profile
 
 # code -> (label, can be detected from data?)
@@ -51,7 +52,7 @@ class Barrier:
 
     def to_dict(self, lang: str = "en") -> dict:
         return {"code": self.code, "label": label(self.code, lang), "confidence": round(self.confidence, 2),
-                "source": self.source, "evidence": self.evidence}
+                "source": self.source, "evidence": tr(self.evidence, lang)}
 
 
 def _hhmm_to_min(s: str | None) -> int | None:
@@ -76,7 +77,7 @@ def infer(hist: list[Night], detections: list[Detection], checkins: list[CheckIn
     # 1) What the person told us recently wins.
     for c in checkins:
         if today - timedelta(days=SELF_REPORT_WINDOW_DAYS) <= c.date <= today and c.barrier in BARRIERS:
-            add(c.barrier, 0.95, "self-report", [f"You told us on {c.date:%d-%b-%Y}."])
+            add(c.barrier, 0.95, "self-report", [Msg("you_told", date=c.date)])
 
     kinds = {d.kind for d in detections}
     last7 = hist[-7:]
@@ -85,9 +86,9 @@ def infer(hist: list[Night], detections: list[Detection], checkins: list[CheckIn
     # 2) Leak-driven barriers.
     if "leak" in kinds:
         short_leaky = [n for n in used7 if (n.leak95_lpm or 0) > LARGE_LEAK_LPM and n.usage_min < ADHERENT_MIN]
-        ev = ["Large leak on recent nights."]
+        ev = [Msg("leak_recent")]
         if short_leaky:
-            ev.append(f"{len(short_leaky)} leaky night(s) were also short — a poor seal often wakes people.")
+            ev.append(Msg("leak_short", n=len(short_leaky)))
         add("MASK_FIT", 0.75 if short_leaky else 0.65, "data", ev)
     if "leak_creep" in kinds:
         add("MASK_WEAR", 0.7, "data", next(d.evidence for d in detections if d.kind == "leak_creep"))
@@ -96,7 +97,7 @@ def infer(hist: list[Night], detections: list[Detection], checkins: list[CheckIn
     removals = [n for n in used7 if n.usage_min < ADHERENT_MIN and (n.mask_events or 1) >= 3]
     if len(removals) >= 2:
         add("MIDNIGHT_REMOVAL", 0.6, "data",
-            [f"On {len(removals)} recent nights the mask came off and on 3+ times and use stayed under 4 h."])
+            [Msg("removal", n=len(removals))])
 
     # 4) Away: no CPAP, but a wearable says they slept.
     away, run = [], 0
@@ -106,7 +107,7 @@ def infer(hist: list[Night], detections: list[Detection], checkins: list[CheckIn
             away = [m for m in last7 if m.usage_min <= 0 and (m.wearable_sleep_min or 0) >= 240]
     if away:
         add("TRAVEL_AWAY", 0.6, "data",
-            [f"No CPAP on {len(away)} nights your watch recorded normal sleep — maybe you were away?"])
+            [Msg("away", n=len(away))])
 
     # 5) Routine shift: sessions starting much later than usual, or weekend-only misses.
     starts_recent = [_hhmm_to_min(n.session_start) for n in used7 if n.session_start]
@@ -115,24 +116,24 @@ def infer(hist: list[Night], detections: list[Detection], checkins: list[CheckIn
         shift = median(starts_recent) - median(starts_base)
         if abs(shift) >= 90:
             add("ROUTINE_SHIFT", 0.6, "data",
-                [f"Bedtime moved by about {abs(shift) / 60:.1f} h compared with your usual."])
+                [Msg("bedtime_shift", h=f"{abs(shift) / 60:.1f}")])
     last28 = hist[-28:]
     wkend_miss = [n for n in last28 if n.usage_min < ADHERENT_MIN and n.date.weekday() in (4, 5)]
     wkday_miss = [n for n in last28 if n.usage_min < ADHERENT_MIN and n.date.weekday() not in (4, 5)]
     if len(wkend_miss) >= 3 and len(wkday_miss) <= 1:
         add("ROUTINE_SHIFT", 0.55, "data",
-            [f"{len(wkend_miss)} of your short nights in 4 weeks were Friday/Saturday nights."])
+            [Msg("weekend", n=len(wkend_miss))])
 
     # 6) Pressure discomfort: short use while pressure sits near the top of its range.
     hi_p = [n for n in used7 if n.pressure95 and n.pressure95 >= 0.9 * profile.max_pressure
             and n.usage_min < ADHERENT_MIN]
     if len(hi_p) >= 2:
         add("PRESSURE_DISCOMFORT", 0.5, "data",
-            ["Pressure ran near its upper limit on short nights. Only your care team should change settings."])
+            [Msg("pressure_high")])
 
     # 7) Nothing specific, but use is sliding: motivation.
     if ("decline" in kinds or "lapse" in kinds) and not out:
         add("MOTIVATION_FADE", 0.4, "data",
-            ["Use is dropping and the data shows no mask or schedule problem."])
+            [Msg("motivation")])
 
     return sorted(out.values(), key=lambda b: -b.confidence)

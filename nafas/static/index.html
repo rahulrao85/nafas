@@ -30,6 +30,10 @@
       </div>
     </div>
     <div class="header-actions">
+      <button class="btn btn-primary add-data" id="addDataBtn" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M11 16V7.8l-2.6 2.6L7 9l5-5 5 5-1.4 1.4L13 7.8V16h-2zm-6 4v-5h2v3h10v-3h2v5H5z"/></svg>
+        <span data-i18n="add_data">Add your data</span>
+      </button>
       <label class="sr-only" for="persona" data-i18n="person">Person</label>
       <select id="persona" class="select" aria-label="Person"></select>
       <button class="btn-icon" id="langBtn" type="button" aria-label="Switch language">ع</button>
@@ -201,15 +205,43 @@
       <div class="stack">
         <button class="btn btn-secondary" id="summaryBtn" type="button" data-i18n="summary_btn">Preview care-team summary</button>
         <pre class="summary" id="summaryOut" hidden></pre>
-        <form id="uploadForm" class="upload">
-          <label class="field"><span data-i18n="upload">Try your own data (ResMed STR.edf, CSV or JSON)</span>
-            <input class="input" type="file" name="file" accept=".edf,.csv,.json"></label>
-          <div class="inline"><button class="btn btn-secondary" type="submit" data-i18n="upload_btn">Load</button>
-            <a class="btn btn-secondary" href="/api/csv-template" data-i18n="template">CSV template</a></div>
-          <p class="muted small" data-i18n="upload_help">Parsed in memory for this session only. Never saved to disk.</p>
-        </form>
         <button class="btn btn-danger" id="forgetBtn" type="button" data-i18n="forget">Delete everything from this session</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add your data -->
+<div class="modal-overlay" id="dataModal" hidden>
+  <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="dataTitle">
+    <button class="btn-icon modal-close" type="button" data-close aria-label="Close">×</button>
+    <div class="modal-header"><h2 id="dataTitle" data-i18n="add_data">Add your data</h2>
+      <p class="muted small" data-i18n="data_help">Drop everything at once: your CPAP SD card, watch and ring exports. Nafas works out what each file is.</p></div>
+    <div class="modal-body">
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-describedby="dropHint">
+        <svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true"><path fill="currentColor" d="M11 16V7.8l-2.6 2.6L7 9l5-5 5 5-1.4 1.4L13 7.8V16h-2zm-6 4v-5h2v3h10v-3h2v5H5z"/></svg>
+        <div class="drop-title" data-i18n="drop_title">Drop files, a folder or a zip here</div>
+        <div class="muted small" id="dropHint" data-i18n="drop_hint">or tap to choose files</div>
+      </div>
+      <div class="inline drop-btns">
+        <label class="btn btn-primary"><input type="file" id="pickFiles" multiple hidden><span data-i18n="choose_files">Choose files</span></label>
+        <label class="btn btn-secondary" id="pickFolderLabel"><input type="file" id="pickFolder" webkitdirectory multiple hidden><span data-i18n="choose_folder">Choose a folder</span></label>
+        <button class="btn btn-secondary" id="sampleBtn" type="button" data-i18n="try_samples">Try sample files</button>
+      </div>
+      <div class="progress" id="uploadProgress" hidden><span></span></div>
+      <div id="dataResult" aria-live="polite"></div>
+      <details class="sources-help">
+        <summary data-i18n="what_works">What can I add?</summary>
+        <ul class="small">
+          <li><strong>ResMed SD card</strong> — <span data-i18n="src_resmed">the whole card folder, a zip of it, or just STR.edf</span></li>
+          <li><strong>Garmin</strong> — <span data-i18n="src_garmin">.fit sleep files, or a Gadgetbridge export zip</span></li>
+          <li><strong>Smart ring</strong> — <span data-i18n="src_ring">the Collector app's export (JSON)</span></li>
+          <li><strong>Apple Health</strong> — <span data-i18n="src_apple">export.zip from the Health app</span></li>
+          <li><strong>Fitbit / Google</strong> — <span data-i18n="src_fitbit">sleep-….json from Takeout</span></li>
+          <li><strong>CSV / JSON</strong> — <a href="/api/csv-template" data-i18n="template">CSV template</a></li>
+        </ul>
+        <p class="muted small" data-i18n="upload_help">Read in memory for this session only, never saved to disk. Names, birth dates and device serials are dropped.</p>
+      </details>
     </div>
   </div>
 </div>

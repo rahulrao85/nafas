@@ -28,15 +28,27 @@ The personas' life events are scripted to exercise the loop: a rocky start, a le
 
 The cohort mixes six archetypes (steady 30%, rocky start 15%, fader 20%, repeated lapser 15%, shift worker 10%, drop-out 10%), so persistence lands well below 100%. Language, age band and shift-work attributes are assigned at random, apart from shift work, so that the equity breakdown has something to measure.
 
-## 2. Data a user may upload (optional, not part of the submission)
+## 2. Data a user may add: one click, any mix (optional, not part of the submission)
 
-| Format | Parser | Kept |
-|---|---|---|
-| ResMed AirSense / AirCurve `STR.edf` (SD card) | `ingest.read_resmed_str`, from the original Sleep IQ build | Nightly numbers only; serial and patient fields are not read |
-| CSV (template from the app) | `ingest.read_csv` | Columns in `ingest.CSV_COLUMNS`; dates ISO or DD-Mon-YYYY |
-| JSON (`{"nights": [...]}` or Sleep IQ v1 export) | `ingest.read_json` | Same fields |
+One **Add your data** button takes files, a whole folder (desktop) or zips, from a phone or a PC, all at once. Each file is detected, parsed and merged, and the app shows what it found (source, nights, date range) and what it skipped and why.
 
-Uploads are parsed in memory for that browser session only. They are never written to disk and are deleted by *Delete everything* or a server restart.
+| Source | What you give it | What Nafas reads | Verified on |
+|---|---|---|---|
+| **ResMed SD card** (AirSense / AirCurve) | `STR.edf`, the whole card folder, or a zip of it | Per night: usage, residual AHI, 95th-percentile leak (L/s → L/min) and pressure, mask sessions, first mask-on time. `DATALOG` (per-breath detail) is skipped: the nightly summary is all the loop needs. `Identification.*` and `SETTINGS/` (they hold the device serial) are skipped on purpose | Synthetic card **and** a real card copy (365 nights, read on the team's PC only; matched an independent SD-card parser night for night) |
+| **Garmin watch** | `.fit` sleep files (one per night), any folder or zip of them | Sleep minutes from `sleep_level` stages (light, deep, REM), overnight HRV (`hrv_status_summary`), resting HR (`monitoring_hr_data`). Device UTC offset from `timestamp_correlation`. The `file_id` message (watch serial) is never read | Synthetic FIT files built to the FIT 2.0 format (with CRCs) |
+| **Gadgetbridge** (Garmin without Garmin's cloud) | The "Export zip" from Gadgetbridge | `*SLEEP_STAGE_SAMPLE` and `*HRV_SUMMARY_SAMPLE` tables from its database, plus any `.fit` files in the zip. Device and user tables are not read | Synthetic database only: Gadgetbridge's schema varies by version, so treat this as best effort |
+| **Smart ring** (Collector app) | Its export: `{"documents": [...]}` JSON (Collector ingest contract v1) | `sleep.segment` stages → minutes asleep; `vitals.hr` (lowest overnight) and `vitals.hrv` (mean) inside the sleep window. Device addresses are not kept | Synthetic export only |
+| **Apple Health** | `export.zip` (or `export.xml`) from the Health app | Asleep minutes per night (largest single source, so iPhone + Watch aren't double-counted), HRV (SDNN), resting HR. Streamed, so large exports work. `<Me>` (birth date, sex) and `export_cda.xml` are skipped | Synthetic export only |
+| **Fitbit / Google Takeout** | `sleep-YYYY-MM-DD.json` | `minutesAsleep` per sleep log, by the night it started | Synthetic export only |
+| **CSV / JSON** | The app's CSV template, or `{"nights": [...]}` | All `Night` fields, including optional wearable columns | Synthetic |
+
+**How they merge.** CPAP nights come from the card, CSV or JSON. Wearable values attach to the CPAP night they belong to; a night runs noon to noon, so 01:30 sleep counts for the evening before. When several wearables cover a night: Garmin FIT, then Gadgetbridge, then ring, then Apple, then Fitbit. Values given explicitly in a CSV win over all of them. Wearable nights outside the CPAP dates are dropped and reported. If no CPAP data comes in, the upload is refused with a plain explanation, because wearable sleep only matters next to CPAP hours. That pairing powers the "slept, but no CPAP — were you away?" check.
+
+**Safety of the upload path.** Uploads are capped at 64 MB per request and 2,500 files. Zips are read in memory, never extracted to disk. The upload is refused if it unpacks to more than 1 GB in total, has more than 20,000 entries, or nests zips more than two levels deep. Any single file over 512 MB is refused, as are encrypted members and absolute or `..` paths. Members over 10 MB with a compression ratio above 200 are skipped as possible zip bombs. One unreadable file is skipped and reported; it doesn't sink the rest of the upload.
+
+**Sample files.** `python scripts/make_samples.py` writes a synthetic file for every source to `data/samples/` (built from the fictional persona Layla). It also writes `data/samples/resmed_sd_card/`, a fake card folder for trying "Choose a folder". The app's **Try sample files** button runs the same files through the same path.
+
+Uploads are read in memory for that browser session only. They are never written to disk and are deleted by *Delete everything* or a server restart. **Real files used to check the parsers stay on the team's PC. They, their outputs and anything derived from them are never committed; the guard test enforces this for code and data.**
 
 ## 3. Reference knowledge used in the rules (no data, cited)
 

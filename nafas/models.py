@@ -17,6 +17,9 @@ class Night:
     mask_events: int | None = None       # mask-on sessions in the night (1 = slept through)
     session_start: str | None = None     # "HH:MM" local time the first session began
     wearable_sleep_min: float | None = None  # optional: sleep a watch/ring saw, CPAP or not
+    wearable_rhr: float | None = None        # optional: resting heart rate, bpm (wellness estimate)
+    wearable_hrv_ms: float | None = None     # optional: overnight HRV, ms (wellness estimate)
+    wearable_source: str | None = None       # which device the wearable fields came from
 
     def to_dict(self) -> dict:
         d = asdict(self)

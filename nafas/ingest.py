@@ -86,20 +86,27 @@ def _from_resmed_record(rec: dict) -> Night | None:
     if isinstance(d, str):
         night_date = parse_date(d)
     else:
-        night_date = EPOCH + timedelta(days=int(d))
-    usage = _f(rec.get("OnDuration")) or 0.0
-    leak = _f(rec.get("Leak.95"))
+        night_date = EPOCH + timedelta(days=int(round(d)))
+    def pos(label):   # ResMed writes -1 for "no value"
+        v = _f(rec.get(label))
+        return v if v is not None and v >= 0 else None
+
+    # "Duration" is mask-on time (what adherence counts); "OnDuration" is machine-on time and can run longer.
+    usage = (pos("Duration") if rec.get("Duration") is not None else pos("OnDuration")) or 0.0
+    used = usage > 0
+    leak = pos("Leak.95")
+    ahi, press = pos("AHI"), pos("MaskPress.95")
     mask_on = rec.get("MaskOn")
     start = None
-    if isinstance(mask_on, list) and mask_on and mask_on[0] and mask_on[0] > 0:
+    if used and isinstance(mask_on, list) and mask_on and mask_on[0] is not None and mask_on[0] >= 0:
         start = (datetime(2000, 1, 1, 12) + timedelta(minutes=mask_on[0])).strftime("%H:%M")  # minutes from noon
-    events = _f(rec.get("MaskEvents"))
+    events = pos("MaskEvents")
     return Night(
-        date=night_date, usage_min=max(0.0, usage),
-        ahi=_f(rec.get("AHI")) if usage > 0 else None,
-        leak95_lpm=round(leak * 60, 1) if (leak is not None and usage > 0) else None,   # L/s → L/min
-        pressure95=_f(rec.get("MaskPress.95")) if usage > 0 else None,
-        mask_events=int(events // 2) if events else (1 if usage > 0 else 0),
+        date=night_date, usage_min=round(usage, 1),
+        ahi=round(ahi, 2) if used and ahi is not None else None,
+        leak95_lpm=round(leak * 60, 1) if used and leak is not None else None,   # L/s → L/min
+        pressure95=round(press, 2) if used and press is not None else None,
+        mask_events=max(1, int(events // 2)) if used and events else (1 if used else 0),
         session_start=start,
     )
 
@@ -107,7 +114,7 @@ def _from_resmed_record(rec: dict) -> Night | None:
 # ─── CSV / JSON ──────────────────────────────────────────────────────────────
 
 CSV_COLUMNS = ["date", "usage_min", "ahi", "leak95_lpm", "pressure95", "mask_events", "session_start",
-               "wearable_sleep_min"]
+               "wearable_sleep_min", "wearable_rhr", "wearable_hrv_ms", "wearable_source"]
 
 
 def _from_row(row: dict) -> Night:
@@ -120,7 +127,8 @@ def _from_row(row: dict) -> Night:
         date=parse_date(row["date"]), usage_min=usage or 0.0, ahi=_f(row.get("ahi")),
         leak95_lpm=_f(row.get("leak95_lpm")), pressure95=_f(row.get("pressure95")),
         mask_events=int(ev) if ev is not None else None, session_start=row.get("session_start") or None,
-        wearable_sleep_min=_f(row.get("wearable_sleep_min")),
+        wearable_sleep_min=_f(row.get("wearable_sleep_min")), wearable_rhr=_f(row.get("wearable_rhr")),
+        wearable_hrv_ms=_f(row.get("wearable_hrv_ms")), wearable_source=row.get("wearable_source") or None,
     )
 
 

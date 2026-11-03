@@ -121,8 +121,10 @@ def persona_layla() -> dict:
     checkins = [CheckIn(_d("2026-07-09"), "DRYNESS", "Mouth like sandpaper at 3 a.m."),
                 CheckIn(_d("2026-09-19"), "TRAVEL_AWAY", "Back from Muscat.")]
     return {"profile": profile, "nights": nights, "checkins": checkins,
-            "story": "New user: rocky start → leak spell (care-team flag) → travel lapse and comeback → "
-                     "an October fade she came back from."}
+            "story": {"en": "New user: rocky start → leak spell (care-team flag) → travel lapse and comeback → "
+                            "an October fade she came back from.",
+                      "ar": "مستخدمة جديدة: بداية متعثرة ← فترة تسرب (تنبيه لفريق الرعاية) ← انقطاع بسبب السفر ثم عودة ← "
+                            "تراجع في أكتوبر عادت منه."}}
 
 
 def persona_omar() -> dict:
@@ -145,7 +147,10 @@ def persona_omar() -> dict:
                       tags={"language": "ar", "age_band": "45-54", "shift_worker": False})
     checkins = [CheckIn(_d("2025-11-11"), "CONGESTION_ILLNESS", "Flu.")]
     return {"profile": profile, "nights": nights, "checkins": checkins,
-            "story": "Long-term user: Ramadan bedtimes, Eid travel, a flu week, and cushions wearing out (leak creeping now)."}
+            "story": {"en": "Long-term user: Ramadan bedtimes, Eid travel, a flu week, and cushions wearing out "
+                            "(leak creeping now).",
+                      "ar": "مستخدم منذ مدة طويلة: مواعيد نوم رمضان، سفر العيد، أسبوع إنفلونزا، ووسائد تهترئ "
+                            "(التسرب يزداد الآن)."}}
 
 
 def persona_ravi() -> dict:
@@ -165,7 +170,8 @@ def persona_ravi() -> dict:
                       tags={"language": "en", "age_band": "25-34", "shift_worker": True})
     checkins = [CheckIn(_d("2026-10-20"), "FELT_FINE", "Honestly feel ok without it.")]
     return {"profile": profile, "nights": nights, "checkins": checkins,
-            "story": "Shift worker: day sleeps, weekend misses, 'I feel fine' — and a lapse right now."}
+            "story": {"en": "Shift worker: day sleeps, weekend misses, 'I feel fine' — and a lapse right now.",
+                      "ar": "يعمل بنظام المناوبات: نوم نهاري، ليالٍ فائتة في العطل، \"أشعر أنني بخير\"، وانقطاع الآن."}}
 
 
 PERSONAS = {"layla": persona_layla, "omar": persona_omar, "ravi": persona_ravi}

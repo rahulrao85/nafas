@@ -32,7 +32,7 @@ def show(pid: str, as_of: date | None) -> None:
     r = loop.run(p["profile"], fill_gaps(p["nights"]), p["checkins"], as_of=as_of)
     m = r.momentum
     print(f"\n━━ {r.profile.display_name} · night of {dmy(r.as_of)} ━━")
-    print(f"   {p['story']}")
+    print(f"   {p['story']['en']}")
     print(f"   Banked {m['banked_nights']} · 30-night adherence {m['adherence_30']}% · run {m['run']} · "
           f"lapses {len(r.lapses)} ({sum(1 for l in r.lapses if l.recovered)} recovered)")
     for d in r.detections:

@@ -33,7 +33,11 @@ Nafas is a separate project with its own code base. From Sleep IQ v1 it takes th
 | Synthetic personas and cohort, with real data barred by a test | Built, tested |
 | UI: design tokens, light and dark, English and Arabic RTL, 375 px | Built, checked by hand in a browser |
 | Consent-gated care-team summary; session-only storage; delete everything | Built, tested |
-| ResMed `STR.edf` reader, carried over from v1 (identifiers dropped) | Carried over, tested on a synthetic EDF |
+| ResMed `STR.edf` reader, carried over from v1 (identifiers dropped; now counts mask-on `Duration` rather than machine-on `OnDuration`; `-1` sentinels and date rounding fixed) | Carried over; tested on a synthetic card and checked locally on a real card copy (365 nights) |
+| One-click **Add your data**: files, folder or zip, from phone or PC; detection, merge, "what we found" report | Built, tested |
+| Garmin FIT, Gadgetbridge, smart-ring (Collector), Apple Health, Fitbit parsers | Built; tested on synthetic files only (no real exports were available) |
+| Upload safety: 64 MB cap, in-memory zip, bomb, traversal and nesting guards | Built, tested |
+| Arabic for every engine message (detections, evidence, outcomes, nudges) and the Outcomes tab | Built, tested (native review pending) |
 
 Code reused from v1: the EDF parsing approach only. Everything else in the `nafas` package is new.
 

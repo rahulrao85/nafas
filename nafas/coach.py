@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 
 from . import actions as lib
+from .i18n import tr
 from .llm import LLMError, LLMProvider
 from .loop import LoopResult
 from .safety import check_output
@@ -35,8 +36,7 @@ UI = {
            "run": "أنت في سلسلة من {run} ليالٍ.", "noticed": "لاحظنا: {what}",
            "step": "خطوتك الصغيرة الليلة: {title}. {step}",
            "ontrack": "لا شيء يحتاج إلى إصلاح الليلة. استمر على روتين الليلة الماضية.",
-           "clinician": "أمر لفريق الرعاية: لاحظنا ارتفاعاً في مؤشر الأحداث التنفسية في عدة ليالٍ. "
-                        "يمكنك مشاركة العرض الأسبوعي معهم."},
+           "clinician": "أمر لفريق الرعاية: {ev} يمكنك مشاركة العرض الأسبوعي معهم."},
 }
 
 
@@ -59,7 +59,7 @@ def brief(r: LoopResult, lang: str) -> dict:
     if iv:
         act = lib.BY_ID[iv.action_id].render(lang)
         b["likely_barrier"] = {"label": iv.barrier.replace("_", " ").lower(), "source": iv.barrier_source}
-        b["noticed"] = iv.evidence[:2]
+        b["noticed"] = tr(iv.evidence[:2], lang)
         b["action"] = {"title": act["title"], "step": act["step"]}
     return b
 
@@ -73,7 +73,7 @@ def template(r: LoopResult, lang: str) -> str:
     if bf["in_comeback"]:
         parts.append(bf["comeback_goal"])
     if "action" in bf:
-        if lang == "en" and bf.get("noticed"):
+        if bf.get("noticed"):
             parts.append(t["noticed"].format(what=bf["noticed"][0]))
         parts.append(t["step"].format(title=bf["action"]["title"], step=bf["action"]["step"]))
     elif not bf["in_comeback"]:
@@ -84,7 +84,7 @@ def template(r: LoopResult, lang: str) -> str:
 def clinician_note(r: LoopResult, lang: str) -> str | None:
     if not any(d.kind == "clinical" for d in r.detections):
         return None
-    ev = next(d.evidence[0] for d in r.detections if d.kind == "clinical")
+    ev = tr(next(d.evidence[0] for d in r.detections if d.kind == "clinical"), lang)
     return UI.get(lang, UI["en"])["clinician"].format(ev=ev)
 
 

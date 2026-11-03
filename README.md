@@ -37,7 +37,8 @@ python run.py
 ```
 
 Terminal-only demo: `python scripts/run_demo.py` (or `python scripts/run_demo.py layla 2026-08-11`).
-Tests: `python -m pytest -q` (43 tests, about 6 s).
+Tests: `python -m pytest -q` (63 tests, about 8 s).
+Synthetic sample files for every data source: `python scripts/make_samples.py` → `data/samples/`.
 Regenerate the declared synthetic dataset: `python scripts/generate_synthetic.py`.
 
 ### Choosing the language model
@@ -57,7 +58,8 @@ If the chosen provider isn't configured or fails, the app uses the template and 
 3. **Omar, two years in, Arabic.** The interface switches to right-to-left. His leak has crept up over two weeks, so the step is *Order a replacement*. Scroll back to March 2025 or February 2026 to see Ramadan bedtimes picked up as *Changed sleep schedule*, with *Use it for every main sleep* offered.
 4. **Ravi, a shift worker in a lapse now.** He reported *Felt fine without it* on 20-Oct-2026. Tap a different barrier and the plan changes. Type "chest pain" in the note and an emergency message appears instead of coaching.
 5. **Outcomes → Run measurement.** This runs the Challenge 09 metrics (persistence, recovery after lapses, retention, residual AHI, equity by language, age band and shift work) on a 150-person synthetic cohort.
-6. **Settings.** Set goal, language, nudge time and quiet hours, and turn AI wording and care-team sharing on or off. *Preview care-team summary* is refused until sharing is on. You can also upload a ResMed `STR.edf`, a CSV or a JSON file, or delete everything from the session.
+6. **Add your data**, the one-click path from a phone or a PC. Press **Add your data**, then drop a whole ResMed SD card folder (or its zip), Garmin `.fit` files or a Gadgetbridge export, the smart ring's Collector export, Apple Health `export.zip` or Fitbit sleep JSON, all at once. Nafas detects each file and merges everything into nights. It shows what it found (source, nights, dates) and what it skipped and why: per-breath DATALOG, and device identity files on purpose. No files to hand? **Try sample files** runs a synthetic file for every source through the same path. Open the result and drag to 16-Sep-2026: the watch saw sleep but CPAP didn't, so Nafas asks whether you were away.
+7. **Settings.** Set goal, language, nudge time and quiet hours, and turn AI wording and care-team sharing on or off. *Preview care-team summary* is refused until sharing is on. *Delete everything* clears the session.
 
 ## How this maps to Challenge 09
 
@@ -86,6 +88,9 @@ If the chosen provider isn't configured or fails, the app uses the template and 
 nafas/
   models.py       Night, CheckIn, Profile
   ingest.py       ResMed STR.edf / CSV / JSON → Night (drops identifiers)
+  sources/        one-click ingest: safe unzip, detect, Garmin FIT, Gadgetbridge, ring, Apple, Fitbit, merge
+  i18n.py         engine messages in English and Arabic
+  samples.py      synthetic sample file for every source
   engine.py       detectors, thresholds, no-reset momentum
   barriers.py     barrier inference with evidence; self-report wins
   actions.py      action library (EN + AR), BCT-tagged
@@ -100,5 +105,5 @@ nafas/
   static/         single-page UI (design tokens, light and dark, 375 px+)
 scripts/          generate_synthetic.py, run_demo.py
 data/synthetic/   the declared demo dataset (generated)
-tests/            43 tests
+tests/            63 tests
 ```

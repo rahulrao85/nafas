@@ -1,7 +1,6 @@
 import re
-from datetime import timedelta
 
-from conftest import START, make_nights
+from conftest import make_nights
 from nafas import actions as lib
 from nafas.barriers import BARRIERS, infer
 from nafas.engine import detect_all

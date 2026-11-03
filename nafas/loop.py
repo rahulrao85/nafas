@@ -17,6 +17,7 @@ from .barriers import infer
 from .barriers import label as barrier_label
 from .engine import (DECLINE_RECENT_DAYS, LARGE_LEAK_LPM, LEAK_CREEP_FLOOR, Detection, detect_all,
                      is_recovered, momentum)
+from .i18n import Msg, tr
 from .learning import Learner
 from .models import CheckIn, Night, Profile
 
@@ -47,9 +48,10 @@ class Intervention:
             "id": self.id, "start": self.start.isoformat(), "trigger": self.trigger,
             "barrier": self.barrier, "barrier_label": barrier_label(self.barrier, lang),
             "barrier_source": self.barrier_source,
-            "action": lib.BY_ID[self.action_id].render(lang), "evidence": self.evidence,
+            "action": lib.BY_ID[self.action_id].render(lang), "evidence": tr(self.evidence, lang),
+            "trigger_label": tr(Msg("trigger_" + self.trigger), lang),
             "escalated": self.escalated, "swapped_out": self.swapped_out, "accepted": self.accepted,
-            "status": self.status, "outcome_note": self.outcome_note,
+            "status": self.status, "outcome_note": tr(self.outcome_note, lang),
         }
 
 
@@ -96,12 +98,12 @@ def _judge(iv: Intervention, after: list[Night], goal_min: float) -> tuple[bool,
         used = [n for n in after if n.usage_min > 0 and n.leak95_lpm is not None]
         line = LARGE_LEAK_LPM if iv.barrier == "MASK_FIT" else LEAK_CREEP_FLOOR
         ok = [n for n in used if n.leak95_lpm <= line]
-        return len(ok) >= 2, f"Leak under {line:.0f} L/min on {len(ok)} of the next {len(after)} nights."
+        return len(ok) >= 2, Msg("judge_leak", line=f"{line:.0f}", n=len(ok), m=len(after))
     if iv.trigger == "lapse":
         used = [n for n in after if n.usage_min > 0]
-        return len(used) >= 2, f"Used on {len(used)} of the next {len(after)} nights (comeback)."
+        return len(used) >= 2, Msg("judge_comeback", n=len(used), m=len(after))
     met = [n for n in after if n.usage_min >= goal_min]
-    return len(met) >= 2, f"Goal met on {len(met)} of the next {len(after)} nights."
+    return len(met) >= 2, Msg("judge_goal", n=len(met), m=len(after))
 
 
 def run(profile: Profile, nights: list[Night], checkins: list[CheckIn] | None = None,
@@ -114,7 +116,6 @@ def run(profile: Profile, nights: list[Night], checkins: list[CheckIn] | None = 
     if not nights:
         raise ValueError("No nights on or before the selected date.")
     goal_min = max(60.0, profile.goal_hours * 60)
-    lang = profile.language
 
     learner = Learner()
     interventions: list[Intervention] = []
@@ -166,7 +167,7 @@ def run(profile: Profile, nights: list[Night], checkins: list[CheckIn] | None = 
         open_iv = next((iv for iv in interventions if iv.status == "open"), None)
 
         if open_iv and today_report and today_report.barrier != open_iv.barrier:
-            open_iv.status, open_iv.outcome_note = "replanned", "You told us something else was in the way."
+            open_iv.status, open_iv.outcome_note = "replanned", Msg("replanned")
             open_iv = None
 
         trigger = None
@@ -216,22 +217,22 @@ def plan_nudge(r: LoopResult) -> dict:
     """At most one nudge a day, only when there is something to do, never in quiet hours."""
     p = r.profile
     if not p.nudges_enabled:
-        return {"send": False, "reason": "Nudges are off (your choice)."}
+        return {"send": False, "reason": Msg("nudge_off")}
     offered = [iv for iv in r.interventions if iv.accepted is not None][-3:]
     every_other_day = len(offered) == 3 and not any(iv.accepted for iv in offered)
     hour, qs, qe = p.nudge_hour, p.quiet_start, p.quiet_end
     in_quiet = (qs <= hour < qe) if qs < qe else (hour >= qs or hour < qe)
     if in_quiet:
-        return {"send": False, "reason": "Your nudge time falls inside quiet hours."}
+        return {"send": False, "reason": Msg("nudge_quiet")}
     iv = r.open_intervention
     rec = r.in_recovery
     if iv is None and rec is None:
-        return {"send": False, "reason": "On track — no nudge needed tonight."}
+        return {"send": False, "reason": Msg("nudge_ontrack")}
     if every_other_day and r.as_of.toordinal() % 2:
-        return {"send": False, "reason": "You passed on the last three suggestions, so we've cut nudges to every other day."}
+        return {"send": False, "reason": Msg("nudge_reduced")}
     if iv is not None and iv.trigger != "lapse":
         text = lib.BY_ID[iv.action_id].render(p.language)["title"]
     else:
         text = lib.COMEBACK.get(p.language, lib.COMEBACK["en"])
     return {"send": True, "at": f"{hour:02d}:00", "text": text,
-            "reason": "One nudge, at the time you chose." + (" Reduced frequency." if every_other_day else "")}
+            "reason": Msg("nudge_one_reduced" if every_other_day else "nudge_one")}

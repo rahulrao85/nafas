@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from statistics import mean, median
 
+from .i18n import Msg, tr
 from .models import Night
 
 # ─── Thresholds (reviewable) ──────────────────────────────────────────────────
@@ -56,8 +57,8 @@ class Detection:
     evidence: list[str] = field(default_factory=list)
     started: date | None = None
 
-    def to_dict(self) -> dict:
-        return {"kind": self.kind, "severity": self.severity, "evidence": self.evidence,
+    def to_dict(self, lang: str = "en") -> dict:
+        return {"kind": self.kind, "severity": self.severity, "evidence": tr(self.evidence, lang),
                 "started": self.started.isoformat() if self.started else None}
 
 
@@ -73,13 +74,11 @@ def detect_lapse(hist: list[Night]) -> Detection | None:
             if n.usage_min > 0:
                 break
             run += 1
-        return Detection("lapse", "act",
-                         [f"No CPAP use for the last {run} nights."],
+        return Detection("lapse", "act", [Msg("lapse_missed", n=run)],
                          started=hist[-run].date)
     short = [n for n in last if n.usage_min < ADHERENT_MIN]
     if len(last) == 5 and len(short) >= LAPSE_SHORT_OF_5:
-        return Detection("lapse", "act",
-                         [f"{len(short)} of the last 5 nights were under 4 hours."],
+        return Detection("lapse", "act", [Msg("lapse_short", n=len(short))],
                          started=short[0].date)
     return None
 
@@ -93,8 +92,8 @@ def detect_decline(hist: list[Night]) -> Detection | None:
     r, b = mean(n.usage_min for n in recent), mean(n.usage_min for n in base)
     if b >= ADHERENT_MIN and r < b * DECLINE_RATIO:
         return Detection("decline", "watch",
-                         [f"Average use fell from {b / 60:.1f} h to {r / 60:.1f} h a night "
-                          f"(last {DECLINE_RECENT_DAYS} nights vs the {DECLINE_BASELINE_DAYS} before)."],
+                         [Msg("decline", b=f"{b / 60:.1f}", r=f"{r / 60:.1f}",
+                              recent=DECLINE_RECENT_DAYS, base=DECLINE_BASELINE_DAYS)],
                          started=recent[0].date)
     return None
 
@@ -105,8 +104,7 @@ def detect_leak(hist: list[Night]) -> Detection | None:
     if len(used) >= 2 and len(high) >= LEAK_EPISODE_OF_3:
         worst = max(n.leak95_lpm for n in high)
         return Detection("leak", "act",
-                         [f"Large leak on {len(high)} of the last {len(used)} nights used "
-                          f"(worst {worst:.0f} L/min; line is {LARGE_LEAK_LPM:.0f})."],
+                         [Msg("leak", n=len(high), m=len(used), worst=f"{worst:.0f}", line=f"{LARGE_LEAK_LPM:.0f}")],
                          started=high[0].date)
     return None
 
@@ -122,8 +120,7 @@ def detect_leak_creep(hist: list[Night]) -> Detection | None:
     lead = median(n.leak95_lpm for n in used[-21:-14])
     if r >= LEAK_CREEP_FLOOR and r >= max(p, 1.0) * LEAK_CREEP_RATIO and lead >= p + 3:
         return Detection("leak_creep", "watch",
-                         [f"Typical leak has crept up from {p:.0f} to {r:.0f} L/min over two weeks — "
-                          "often a cushion or headgear wearing out."],
+                         [Msg("leak_creep", p=f"{p:.0f}", r=f"{r:.0f}")],
                          started=recent[0].date)
     return None
 
@@ -133,8 +130,7 @@ def detect_clinical(hist: list[Night]) -> Detection | None:
     high = [n for n in used if n.ahi >= AHI_FLAG]
     if len(high) >= AHI_FLAG_NIGHTS:
         return Detection("clinical", "clinician",
-                         [f"Residual AHI was {AHI_FLAG:.0f} or more on {len(high)} of the last {len(used)} "
-                          "nights. This is for your care team to review — the app does not change therapy."],
+                         [Msg("clinical", line=f"{AHI_FLAG:.0f}", n=len(high), m=len(used))],
                          started=high[0].date)
     return None
 

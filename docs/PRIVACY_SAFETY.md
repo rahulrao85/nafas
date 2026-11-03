@@ -25,11 +25,11 @@
 
 | Principle | In the prototype | In a pilot |
 |---|---|---|
-| Data minimisation | Nightly summary numbers only; identifiers dropped at ingest | Same; no raw waveforms |
+| Data minimisation | Nightly summary numbers only. Never read: ResMed `Identification.*` and `SETTINGS/` (serial), FIT `file_id` (watch serial), Apple `<Me>` (birth date, sex), Gadgetbridge device and user tables, ring device addresses. Tested with planted fake identifiers | Same; no raw waveforms |
 | Storage | None. Per-session memory, cleared by *Delete everything* or a restart | Encrypted at rest in a UAE region; retention set with the pilot partner |
 | Consent | Care-team summary refused (403) until the person turns sharing on; a preview is shown first | Explicit, revocable, purpose-specific consent recorded |
 | Control | Goal, language, nudge time, quiet hours, nudges on or off, AI wording on or off, swap or skip any step | Plus data export and account deletion |
-| Session security | HttpOnly, SameSite=Lax session cookie; 5 MB upload cap; coach rate limit | Plus SSO via the partner, audit log, penetration test |
+| Session security | HttpOnly, SameSite=Lax session cookie; 64 MB upload cap; zips read in memory with size, ratio, nesting and path guards; coach rate limit | Plus SSO via the partner, audit log, penetration test |
 
 ### No punitive use
 
