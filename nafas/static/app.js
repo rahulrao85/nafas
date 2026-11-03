@@ -26,7 +26,7 @@
       settings: 'Settings', settings_help: 'Your goals, your data, your notifications.', goal: 'Nightly goal (hours)', language: 'Language',
       nudge_hour: 'Nudge time', quiet: 'Quiet hours (from–to)', nudges: 'Evening nudges (max one a day)', use_llm: 'Let AI word my notes',
       share: 'Allow a care-team summary', save: 'Save', summary_btn: 'Preview care-team summary',
-      upload: 'Try your own data (ResMed STR.edf, CSV or JSON)', upload_btn: 'Load', template: 'CSV template',
+      template: 'CSV template',
       upload_help: 'Read in memory for this session only, never saved to disk. Names, birth dates and device serials are dropped.', forget: 'Delete everything from this session',
       last_night: 'Last night', banked: 'Banked good nights', banked_sub: 'Never resets', adh30: '30-night adherence', adh_sub: 'Nights at goal',
       run: 'Current run', run_sub: (g) => g ? `${g} short night${g > 1 ? 's' : ''} forgiven` : 'One short night a week is forgiven', comebacks: 'Comebacks',
@@ -74,6 +74,7 @@
       groups: { language: 'Language', age_band: 'Age band', shift_worker: 'Shift worker' },
       watch: 'Watch/ring', rhr: 'RHR', hrv: 'HRV',
       src: {},
+      sev: { stop: 'needed', warn: 'check', info: 'note' }, checks_title: 'Data checks', no_usage: 'None of your CPAP files has a nightly-use value, and every decision Nafas makes needs it. Check the CSV has a usage_min (or usage_hours) column.',
     },
     ar: {
       tagline: 'عادات CPAP تصمد أمام الأسابيع الصعبة', asof: 'صباح يوم', play: 'تشغيل', pause: 'إيقاف', latest: 'الأحدث',
@@ -89,7 +90,7 @@
       settings: 'الإعدادات', settings_help: 'أهدافك وبياناتك وتنبيهاتك.', goal: 'الهدف الليلي (ساعات)', language: 'اللغة',
       nudge_hour: 'وقت التذكير', quiet: 'ساعات الهدوء (من–إلى)', nudges: 'تذكير مسائي (مرة واحدة يومياً كحد أقصى)', use_llm: 'اسمح للذكاء الاصطناعي بصياغة ملاحظاتي',
       share: 'السماح بملخص لفريق الرعاية', save: 'حفظ', summary_btn: 'معاينة ملخص فريق الرعاية',
-      upload: 'جرّب بياناتك (ResMed STR.edf أو CSV أو JSON)', upload_btn: 'تحميل', template: 'نموذج CSV',
+      template: 'نموذج CSV',
       upload_help: 'تُقرأ في الذاكرة لهذه الجلسة فقط ولا تُحفظ. تُحذف الأسماء وتواريخ الميلاد والأرقام التسلسلية للأجهزة.', forget: 'احذف كل ما في هذه الجلسة',
       last_night: 'الليلة الماضية', banked: 'ليالٍ جيدة محسوبة', banked_sub: 'لا تُصفَّر أبداً', adh30: 'الالتزام في 30 ليلة', adh_sub: 'ليالٍ حققت الهدف',
       run: 'السلسلة الحالية', run_sub: (g) => g ? `سُومح في ${g} ليلة قصيرة` : 'تُسامَح ليلة قصيرة واحدة أسبوعياً', comebacks: 'مرات العودة',
@@ -136,6 +137,7 @@
       c_small: 'عدد صغير', c_note: (m) => `تُحسب فجوات العدالة للمجموعات التي تضم ${m} شخصاً أو أكثر فقط. الصفات هنا موزعة عشوائياً، فأي فجوة هي صدفة، ولهذا يجب أن تحدد التجربة الفعلية مقارناتها مسبقاً وتصحح للاختبارات المتعددة.`,
       groups: { language: 'اللغة', age_band: 'الفئة العمرية', shift_worker: 'عامل مناوبات' },
       watch: 'الساعة/الخاتم', rhr: 'نبض الراحة', hrv: 'HRV',
+      sev: { stop: 'مطلوب', warn: 'تحقق', info: 'ملاحظة' }, checks_title: 'فحص البيانات', no_usage: 'لا يحتوي أي من ملفات CPAP على قيمة لمدة الاستخدام الليلي، وكل قرار في نَفَس يحتاجها. تأكد أن ملف CSV فيه عمود usage_min أو usage_hours.',
       src: { resmed_str: 'بطاقة ResMed ‏(STR.edf)', nafas_csv: 'CSV', nafas_json: 'JSON', garmin_fit: 'ساعة Garmin ‏(.fit)',
              gadgetbridge: 'تصدير Gadgetbridge', collector: 'خاتم ذكي (تصدير Collector)', apple_health: 'تصدير Apple Health',
              fitbit: 'نوم Fitbit / Google' },
@@ -270,6 +272,7 @@
     if (st.clinician_flag) {
       h += `<div class="alert alert-danger"><h3>${esc(t('clinician_title'))} · ${esc(fmt(st.clinician_flag.date))}</h3><p>${esc(st.clinician_flag.evidence[0])}</p></div>`;
     }
+    if (st.data_warnings && st.data_warnings.length) h += `<div class="alert">${warningsHtml(st.data_warnings)}</div>`;
     $('#banners').innerHTML = h;
   }
 
@@ -583,6 +586,7 @@
     fd.append('paths', JSON.stringify(send.map((x) => x.path)));
     fd.append('skipped', JSON.stringify(skipped.slice(0, 500)));
     fd.append('tz_offset_min', String(-new Date().getTimezoneOffset()));
+    fd.append('lang', S.lang);
     upload('/api/upload', fd);
   }
 
@@ -605,6 +609,12 @@
     xhr.send(fd);
   }
 
+  function warningsHtml(ws) {
+    if (!ws || !ws.length) return '';
+    const cls = { stop: 'tag-danger', warn: 'tag-warning', info: 'tag-info' };
+    return `<div class="checks"><h3>${esc(t('checks_title'))}</h3><ul class="skip-list">${ws.map((w) =>
+      `<li><span class="tag ${cls[w.severity] || ''}">${esc((t('sev') || {})[w.severity] || w.severity)}</span> ${esc(w.text)}</li>`).join('')}</ul></div>`;
+  }
   const countBy = (arr) => arr.reduce((m, x) => ((m[x.reason] = (m[x.reason] || 0) + 1), m), {});
   const showError = (msg) => { $('#uploadProgress').hidden = true; $('#dataResult').innerHTML = `<div class="alert alert-danger">${esc(msg)}</div>`; };
 
@@ -621,9 +631,10 @@
       head = `<div class="alert alert-success"><div class="found-summary">${esc(t('found_n')(sum.nights, fmt(sum.first), fmt(sum.last)))}</div>
         <div class="small">${esc(t('cpap_used')(sum.cpap_nights_used))}${sum.wearable_nights ? ' · ' + esc(t('wear_n')(sum.wearable_nights)) : ''}</div>
         <div class="btn-row"><button class="btn btn-primary" id="openDataBtn" type="button">${esc(t('open_data'))}</button></div></div>`;
-    } else if (r.error === 'no_cpap') {
-      head = `<div class="alert alert-warning">${esc(t('no_cpap'))}</div>`;
+    } else if (r.error === 'no_cpap' || r.error === 'no_usage') {
+      head = `<div class="alert alert-warning">${esc(t(r.error))}</div>`;
     }
+    head += warningsHtml(r.warnings);
     $('#uploadProgress').hidden = true;
     $('#dataResult').innerHTML = head +
       (rows ? `<div class="table-wrap"><table class="table rtable"><thead><tr><th>${esc(t('source'))}</th><th>${esc(t('from_file'))}</th><th>${esc(t('nights_col'))}</th><th>${esc(t('range'))}</th></tr></thead><tbody>${rows}</tbody></table></div>` : '') +
@@ -646,7 +657,7 @@
   $('#pickFiles').addEventListener('change', (e) => { sendFiles([...e.target.files].map((f) => ({ file: f, path: f.name }))); e.target.value = ''; });
   $('#pickFolder').addEventListener('change', (e) => { sendFiles([...e.target.files].map((f) => ({ file: f, path: f.webkitRelativePath || f.name }))); e.target.value = ''; });
   $('#sampleBtn').addEventListener('click', () => {
-    const fd = new FormData(); fd.append('tz_offset_min', '240'); upload('/api/upload-samples', fd);
+    const fd = new FormData(); fd.append('tz_offset_min', '240'); fd.append('lang', S.lang); upload('/api/upload-samples', fd);
   });
   $('#forgetBtn').addEventListener('click', async () => {
     const r = await post('/api/forget', {});

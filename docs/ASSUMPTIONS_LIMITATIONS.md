@@ -51,6 +51,8 @@ No database, queue or cloud service is required to run the prototype.
 - The EDF reader is tested on a synthetic STR.edf built to the ResMed layout and checked on one real AirSense 10 card copy, not on every device generation (AirSense 11 is untested).
 - The Garmin FIT, Gadgetbridge, smart-ring, Apple Health and Fitbit parsers are tested on **synthetic** files only; no real exports were available during the build. Gadgetbridge's database schema changes between versions, so that reader is best effort. Garmin's newer sleep files may use message numbers beyond the public FIT profile; fields are matched by number to reduce that risk.
 - Wearable values (sleep minutes, resting HR, HRV) are consumer estimates. They're used only to ask "were you away?" and shown for context, never as clinical measures.
+- Emergency detection is phrase matching (English and Arabic). It scores 100% sensitivity on 47 phrasings, but a held-out batch first scored 8/15 (see BENCHMARK.md): unseen wording can still slip through. It is a safety net that stops coaching, not a triage tool.
+- Units are never guessed: hours typed into a minutes column are flagged, not converted, so those nights read as short until the column is renamed. This is deliberate; a wrong guess could hide a lapse.
 - A browser folder picker isn't available on phones; there, people pick files or a zip. Very large SD cards (over 64 MB) need zipping or picking `STR.edf` alone; the browser already leaves out per-breath DATALOG files.
 - The Claude provider was exercised up to authentication; no live key was used during the build, so the coach prompt hasn't been tuned on real model output yet.
 - Nudges are planned, not sent: no push, SMS or WhatsApp integration in the prototype.

@@ -24,9 +24,53 @@ FORBIDDEN = [
     ("link", re.compile(r"https?://|www\.", re.I)),
 ]
 
-CRISIS = re.compile(
-    r"chest pain|can'?t breathe|cannot breathe|struggling to breathe|faint(ed|ing)?|passed out|"
-    r"suicid|kill myself|end my life|ألم في الصدر|لا أستطيع التنفس|انتحار|أغمي علي", re.I)
+# Emergency wording in a free-text note. Matched on normalised text (lower case; Arabic without diacritics,
+# with أ/إ/آ → ا, ى → ي, ة → ه), so spelling variants and dialect forms hit the same pattern.
+# (pattern, negatable): a negatable symptom preceded by "no / without / لا يوجد…" is not an emergency.
+CRISIS_PATTERNS = [(re.compile(p), neg) for p, neg in [
+    # chest
+    (r"\bchest\s*pains?\b", True),
+    (r"\bpain\w*\b[^.!?]{0,25}\bchest\b", True),                      # "crushing pain across my chest"
+    (r"\bchest\s+(\w+\s+){0,2}(tight|hurt\w*|heavy|pressure|ache\w*)", True),
+    (r"\btight(ness)?\s+(in\s+)?(my\s+)?chest\b", True),
+    (r"(الم|وجع)\s*(\S+\s*)?(في|ب)?\s*(ال)?صدر", True),               # "ألم شديد بالصدر"
+    (r"ضيق\s*(في|ب)?\s*(ال)?صدر", True),                               # chest tightness
+    (r"صدر\S*\s*(يولم|يوجع|يعور|توجع)", True),                          # "صدري يؤلمني"
+    # breathing
+    (r"\b(can'?t|cannot|can not|unable to|not able to|struggling to|struggle to|hard to|could not|couldn'?t"
+     r"|hardly|barely)\s+breathe?\b", False),
+    (r"\b(can'?t|cannot|couldn'?t|unable to)\s+catch\s+my\s+breath\b", False),
+    (r"\b(trouble|difficulty|difficult)\s+breathing\b", True),
+    (r"\bshort(ness)?\s+of\s+breath\b", True),
+    (r"(لا|ما|مو|مش)\s*(استطيع|اقدر|قادر|اقدرش)\s*(علي\s*|ان\s*)?(ال|ات|ا)?تنفس", False),
+    (r"(ضيق|صعوبه)\s*(في\s*)?(ال)?تنفس", True),
+    # consciousness
+    (r"\b(fainted|fainting|passed out|blacked out|lost consciousness|collapsed)\b", False),
+    (r"\b(felt|feel|feeling)\s+faint\b", False),
+    (r"اغمي\s*علي|اغماء|فقدت\s*(ال)?وعي", False),
+    # self-harm
+    (r"\bsuicid|\bkill(ing)?\s+myself\b|\bend\s+my\s+life\b|\bend\s+it\s+all\b|\bwant\s+to\s+die\b|\bself[- ]?harm|\bhurt\s+myself\b", False),
+    (r"انتحار|انتحر|اقتل\s*نفسي|(اريد|ابي|ابغي|بدي)\s*(ان\s*)?اموت|انهي\s*حياتي", False),
+]]
+NEGATION = re.compile(r"(\b(no|without|never|denies|deny)\s+(\w+\s+)?|(لا\s*يوجد|ما\s*في|مافي|بدون|ليس\s*عندي|ما\s*عندي)\s*)$")
+_AR_DIACRITICS = re.compile(r"[ً-ْٰـ]")
+
+
+def _normalise(text: str) -> str:
+    t = _AR_DIACRITICS.sub("", text.lower().replace("’", "'"))
+    for a, b in (("أ", "ا"), ("إ", "ا"), ("آ", "ا"), ("ى", "ي"), ("ة", "ه"), ("ؤ", "و"), ("ئ", "ي")):
+        t = t.replace(a, b)
+    return re.sub(r"\s+", " ", t)
+
+
+def is_crisis(note: str) -> bool:
+    t = _normalise(note or "")
+    for rx, negatable in CRISIS_PATTERNS:
+        for m in rx.finditer(t):
+            if negatable and NEGATION.search(t[:m.start()]):
+                continue
+            return True
+    return False
 
 CRISIS_MESSAGE = {
     "en": "What you wrote may need urgent care. If you have chest pain, trouble breathing or have fainted, "
@@ -47,6 +91,6 @@ def check_output(text: str) -> list[str]:
 
 
 def crisis_check(note: str, lang: str = "en") -> str | None:
-    if note and CRISIS.search(note):
+    if is_crisis(note):
         return CRISIS_MESSAGE.get(lang, CRISIS_MESSAGE["en"])
     return None

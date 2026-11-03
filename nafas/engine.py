@@ -27,7 +27,7 @@ LEAK_CREEP_RATIO = 2.0       # 14-night median leak doubles vs prior 30 nights â
 LEAK_CREEP_FLOOR = 12.0      # â€¦ and sits above 12 L/min (cushion wearing out)
 AHI_FLAG = 10.0              # residual AHI worth a clinician's look
 AHI_FLAG_NIGHTS = 3          # on 3 of the last 7 used nights
-GRACE_PER_7 = 1              # one missed night per rolling week doesn't break the run
+GRACE_WINDOW_DAYS = 7        # one forgiven short or missed night per this many days
 
 
 def status_of(n: Night, goal_min: float = ADHERENT_MIN) -> str:
@@ -110,18 +110,21 @@ def detect_leak(hist: list[Night]) -> Detection | None:
 
 
 def detect_leak_creep(hist: list[Night]) -> Detection | None:
-    used = [n for n in _used(hist[-51:]) if n.leak95_lpm is not None]
-    if len(used) < 35:
+    # Calendar windows (not reading counts), so missing leak values don't shift them.
+    end = hist[-1].date
+    def window(a, b):   # leak values from nights a..b days before the last night (inclusive of b)
+        return [n.leak95_lpm for n in _used(hist[-51:]) if n.leak95_lpm is not None and a <= (end - n.date).days <= b]
+    recent, lead, prior = window(0, 13), window(14, 20), window(21, 50)
+    if len(recent) < 5 or len(lead) < 3 or len(prior) < 10:
         return None
-    recent, prior = used[-14:], used[:-21]
-    r, p = median(n.leak95_lpm for n in recent), median(n.leak95_lpm for n in prior)
+    r, p = median(recent), median(prior)
     # Creep means a slow drift: the week before the recent fortnight must already be rising.
     # A sudden jump from a normal baseline is an acute leak (mask fit), not wear.
-    lead = median(n.leak95_lpm for n in used[-21:-14])
+    lead = median(lead)
     if r >= LEAK_CREEP_FLOOR and r >= max(p, 1.0) * LEAK_CREEP_RATIO and lead >= p + 3:
         return Detection("leak_creep", "watch",
                          [Msg("leak_creep", p=f"{p:.0f}", r=f"{r:.0f}")],
-                         started=recent[0].date)
+                         started=end - timedelta(days=13))
     return None
 
 
@@ -165,7 +168,7 @@ def momentum(hist: list[Night], goal_min: float = ADHERENT_MIN) -> dict:
             if statuses[j] == "met":
                 run += 1
                 continue
-            if last_grace is not None and last_grace - j < 7:
+            if last_grace is not None and last_grace - j < GRACE_WINDOW_DAYS:
                 break
             if j > 0 and statuses[j - 1] != "met":
                 break

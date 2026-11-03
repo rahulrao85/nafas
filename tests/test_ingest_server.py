@@ -34,7 +34,7 @@ def build_str_edf(days: list[dict]) -> bytes:
 def test_resmed_str_edf_is_parsed_and_identifiers_dropped():
     days = [{"date": 20575 + i, "min": 420 + i, "ahi": 1.2, "leak_ls": 0.5, "press": 12.5, "events": 2, "on": 660}
             for i in range(3)]
-    nights = ingest.load_bytes("STR.edf", build_str_edf(days))
+    nights = ingest.read_resmed_str(build_str_edf(days))
     n = nights[0]
     assert len(nights) == 3 and n.date.isoformat() == "2026-05-02"
     assert n.usage_min == pytest.approx(420, abs=0.2) and n.ahi == pytest.approx(1.2, abs=0.01)
@@ -54,8 +54,6 @@ def test_csv_round_trip_and_ddmonyyyy_dates():
 def test_json_and_bad_files():
     nights = ingest.read_json(json.dumps({"nights": [{"date": "2026-01-01", "usage_min": 300}]}))
     assert nights[0].usage_min == 300
-    with pytest.raises(ValueError):
-        ingest.load_bytes("notes.txt", b"hello")
     with pytest.raises(ValueError):
         ingest.read_csv("day,hours\n1,2\n")
 

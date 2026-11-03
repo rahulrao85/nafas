@@ -67,6 +67,39 @@ T: dict[str, dict[str, str]] = {
     "nudge_one": {"en": "One nudge, at the time you chose.", "ar": "تذكير واحد في الوقت الذي اخترته."},
     "nudge_one_reduced": {"en": "One nudge, at the time you chose. Reduced frequency.",
                           "ar": "تذكير واحد في الوقت الذي اخترته، بتكرار أقل."},
+    # ── data checks ──
+    "q_usage_missing": {"en": "{src}: {n} nights have no usage value, so we can't tell used from not used. They're left out.",
+                        "ar": "{src}: لا توجد قيمة استخدام في {n} ليلة، فلا يمكن معرفة إن استُخدم الجهاز أم لا. تُركت جانباً."},
+    "q_usage_hours": {"en": "{src}: every nightly-use value is 24 or less. If they're hours, rename the column usage_hours. "
+                             "Until then they're read as minutes, so most nights look short.",
+                      "ar": "{src}: كل قيم الاستخدام 24 أو أقل. إن كانت بالساعات فغيّر اسم العمود إلى usage_hours. "
+                            "حتى ذلك الحين تُقرأ بالدقائق فتبدو معظم الليالي قصيرة."},
+    "q_leak_lps": {"en": "{src}: leak values are all very low. If they're litres per second, rename the column leak95_lps. "
+                         "Until then leak checks may miss a problem.",
+                   "ar": "{src}: كل قيم التسرب منخفضة جداً. إن كانت باللتر في الثانية فغيّر اسم العمود إلى leak95_lps. "
+                         "حتى ذلك الحين قد تفوت فحوص التسرب مشكلة."},
+    "q_impossible_usage": {"en": "{src}: nightly use was impossible on {n} nights (over 24 h or negative). They count as not used.",
+                           "ar": "{src}: كانت مدة الاستخدام مستحيلة في {n} ليلة (أكثر من 24 ساعة أو سالبة)، فتُحسب بلا استخدام."},
+    "q_impossible": {"en": "{src}: {field} was impossible on {n} nights (out of range). Those values were ignored.",
+                     "ar": "{src}: قيمة {field} مستحيلة في {n} ليلة (خارج المدى)، فتم تجاهلها."},
+    "q_bad_rows": {"en": "{src}: {n} rows had an unreadable date and were left out.",
+                   "ar": "{src}: {n} صفوف بتاريخ غير مقروء تُركت جانباً."},
+    "q_duplicates": {"en": "{src}: {n} nights appeared twice. We kept the more complete record for each.",
+                     "ar": "{src}: ظهرت {n} ليلة مرتين، فاحتفظنا بالسجل الأكمل لكل منها."},
+    "q_conflict": {"en": "{n} nights came from two CPAP files with different values. We kept the SD card's.",
+                   "ar": "جاءت {n} ليلة من ملفين مختلفين بقيم مختلفة، فاحتفظنا بقيم بطاقة SD."},
+    "q_gap": {"en": "No record for {n} nights ({a} to {b}). They count as not used; if you did use CPAP, the card copy may be incomplete.",
+              "ar": "لا يوجد سجل لـ {n} ليلة (من {a} إلى {b}). تُحسب كليالٍ بلا استخدام؛ إن كنت استخدمت الجهاز فقد تكون نسخة البطاقة ناقصة."},
+    "q_no_ahi": {"en": "No AHI in your data, so the check that flags high residual events for your care team is off.",
+                 "ar": "لا يوجد مؤشر AHI في بياناتك، لذا فحص الأحداث المتبقية المرتفعة لفريق الرعاية متوقف."},
+    "q_no_leak": {"en": "No leak values, so the mask-leak and worn-cushion checks are off.",
+                  "ar": "لا توجد قيم للتسرب، لذا فحوص تسرب القناع واهتراء الوسادة متوقفة."},
+    "q_no_start": {"en": "No start times, so the changed-bedtime check is off.",
+                   "ar": "لا توجد أوقات بدء، لذا فحص تغيّر موعد النوم متوقف."},
+    "q_no_events": {"en": "No mask on/off counts, so the mask-off-at-night check is off.",
+                    "ar": "لا يوجد عدد لمرات نزع القناع، لذا فحص نزعه أثناء الليل متوقف."},
+    "q_no_wearable": {"en": "No watch or ring data, so Nafas can't tell a trip from a skipped night.",
+                      "ar": "لا توجد بيانات ساعة أو خاتم، لذا لا يميّز نَفَس بين السفر والليلة الفائتة."},
     # ── triggers (history column) ──
     "trigger_lapse": {"en": "lapse", "ar": "انقطاع"},
     "trigger_decline": {"en": "decline", "ar": "تراجع"},
@@ -101,7 +134,31 @@ def _rebuild(key, params):
 def _fmt(key: str, lang: str, params: dict) -> str:
     tpl = T[key].get(lang) or T[key]["en"]
     shown = {k: (dmy(v) if isinstance(v, date) else v) for k, v in params.items()}
+    for k in ("field", "src"):          # codes that have a human label
+        if k in shown and shown[k] in LABELS:
+            shown[k] = LABELS[shown[k]].get(lang) or LABELS[shown[k]]["en"]
     return tpl.format(**shown)
+
+
+LABELS: dict[str, dict[str, str]] = {
+    "usage_min": {"en": "nightly use", "ar": "مدة الاستخدام"},
+    "ahi": {"en": "AHI", "ar": "مؤشر AHI"},
+    "leak95_lpm": {"en": "leak", "ar": "التسرب"},
+    "pressure95": {"en": "pressure", "ar": "الضغط"},
+    "mask_events": {"en": "mask on/off count", "ar": "عدد مرات نزع القناع"},
+    "session_start": {"en": "start time", "ar": "وقت البدء"},
+    "wearable_sleep_min": {"en": "watch/ring sleep", "ar": "نوم الساعة/الخاتم"},
+    "wearable_rhr": {"en": "resting heart rate", "ar": "نبض الراحة"},
+    "wearable_hrv_ms": {"en": "HRV", "ar": "HRV"},
+    "resmed_str": {"en": "SD card", "ar": "بطاقة SD"},
+    "nafas_csv": {"en": "CSV", "ar": "CSV"},
+    "nafas_json": {"en": "JSON", "ar": "JSON"},
+    "garmin_fit": {"en": "Garmin", "ar": "Garmin"},
+    "gadgetbridge": {"en": "Gadgetbridge", "ar": "Gadgetbridge"},
+    "collector": {"en": "ring", "ar": "الخاتم"},
+    "apple_health": {"en": "Apple Health", "ar": "Apple Health"},
+    "fitbit": {"en": "Fitbit", "ar": "Fitbit"},
+}
 
 
 def tr(x, lang: str = "en"):

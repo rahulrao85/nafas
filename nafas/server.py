@@ -141,6 +141,7 @@ def state_json(pid: str, as_of: date) -> dict:
         "checkins": [c.to_dict() for c in (data.get("checkins", []))] + ov["checkins"],
         "barrier_options": [{"code": k, "label": barrier_label(k, lang)} for k in BARRIERS],
         "llm": get_provider().describe(),
+        "data_warnings": [w.to_dict(lang) for w in data.get("warnings", [])],
     }
 
 
@@ -291,19 +292,20 @@ def create_app() -> Flask:
         return _store_upload(ingest_sources(list(build_all().items()), tz_offset_min=240), "Sample files")
 
     def _store_upload(rep, name: str):
+        lang = request.form.get("lang", "en")
         if rep.error:
-            return jsonify(persona=None, report=rep.to_dict()), 422
+            return jsonify(persona=None, report=rep.to_dict(lang)), 422
         nights = rep.nights
         s = _SESSIONS[_sid()]
         pid = f"upload{len(s['uploads']) + 1}"
         first, last = dmy(nights[0].date), dmy(nights[-1].date)
         s["uploads"][pid] = {
             "profile": Profile(id=pid, display_name=name, notes="Uploaded this session; held in memory only."),
-            "nights": nights, "checkins": [],
+            "nights": nights, "checkins": [], "warnings": rep.warnings,
             "story": {"en": f"{name}: {len(nights)} nights, {first} to {last}.",
                       "ar": f"{'بياناتك' if name == 'Your data' else 'ملفات نموذجية'}: {len(nights)} ليلة، من {first} إلى {last}."},
         }
-        return jsonify(persona=pid, nights=len(nights), report=rep.to_dict())
+        return jsonify(persona=pid, nights=len(nights), report=rep.to_dict(lang))
 
     @app.get("/api/csv-template")
     def csv_template():

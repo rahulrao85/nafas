@@ -38,6 +38,9 @@ Nafas is a separate project with its own code base. From Sleep IQ v1 it takes th
 | Garmin FIT, Gadgetbridge, smart-ring (Collector), Apple Health, Fitbit parsers | Built; tested on synthetic files only (no real exports were available) |
 | Upload safety: 64 MB cap, in-memory zip, bomb, traversal and nesting guards | Built, tested |
 | Arabic for every engine message (detections, evidence, outcomes, nudges) and the Outcomes tab | Built, tested (native review pending) |
+| Data checks: every bad input becomes a warning (impossible values, suspect units, duplicates, gaps, missing fields, conflicting sources); stops only when usage is missing everywhere | Built, tested |
+| Labelled benchmark: 129 cases (89 hard), safety-critical suites scored separately, failing module named | Built; 128/129 (one accepted false alarm) |
+| Comparison with existing solutions; integration path (JSON API, provider feeds, FHIR idea) | Written ([EXISTING_SOLUTIONS.md](EXISTING_SOLUTIONS.md), [ARCHITECTURE.md](ARCHITECTURE.md)) |
 
 Code reused from v1: the EDF parsing approach only. Everything else in the `nafas` package is new.
 

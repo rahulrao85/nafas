@@ -124,22 +124,36 @@ def _from_row(row: dict) -> Night:
         usage = _f(row["usage_hours"]) * 60
     ev = _f(row.get("mask_events"))
     return Night(
-        date=parse_date(row["date"]), usage_min=usage or 0.0, ahi=_f(row.get("ahi")),
-        leak95_lpm=_f(row.get("leak95_lpm")), pressure95=_f(row.get("pressure95")),
+        date=parse_date(row["date"]), usage_min=usage, ahi=_f(row.get("ahi")),   # None = missing, not "not used"
+        leak95_lpm=_f(row.get("leak95_lpm")) if _f(row.get("leak95_lpm")) is not None
+        else (_f(row.get("leak95_lps")) * 60 if _f(row.get("leak95_lps")) is not None else None),
+        pressure95=_f(row.get("pressure95")),
         mask_events=int(ev) if ev is not None else None, session_start=row.get("session_start") or None,
         wearable_sleep_min=_f(row.get("wearable_sleep_min")), wearable_rhr=_f(row.get("wearable_rhr")),
         wearable_hrv_ms=_f(row.get("wearable_hrv_ms")), wearable_source=row.get("wearable_source") or None,
     )
 
 
-def read_csv(text: str) -> list[Night]:
+def _rows(rows, bad: list | None) -> list[Night]:
+    """Parse rows; a row with an unreadable date is reported in `bad`, not fatal."""
+    out = []
+    for i, r in enumerate(rows, start=1):
+        try:
+            out.append(_from_row(r))
+        except (KeyError, ValueError, IndexError):
+            if bad is not None:
+                bad.append(i)
+    return out
+
+
+def read_csv(text: str, bad: list | None = None) -> list[Night]:
     rows = list(csv.DictReader(io.StringIO(text)))
     if not rows or "date" not in {k.strip().lower() for k in rows[0]}:
         raise ValueError("CSV needs a 'date' column. Template columns: " + ", ".join(CSV_COLUMNS))
-    return [_from_row(r) for r in rows]
+    return _rows(rows, bad)
 
 
-def read_json(text: str) -> list[Night]:
+def read_json(text: str, bad: list | None = None) -> list[Night]:
     obj = json.loads(text)
     if isinstance(obj, dict) and "records" in obj:          # original Sleep IQ export (ResMed keys)
         out = []
@@ -152,22 +166,9 @@ def read_json(text: str) -> list[Night]:
                 out.append(n)
         return out
     rows = obj.get("nights", obj) if isinstance(obj, dict) else obj
-    return [_from_row({k: ("" if v is None else str(v)) for k, v in r.items()}) for r in rows]
+    return _rows(({k: ("" if v is None else str(v)) for k, v in r.items()} for r in rows), bad)
 
 
-def load_bytes(filename: str, data: bytes) -> list[Night]:
-    name = filename.lower()
-    if name.endswith(".edf"):
-        nights = read_resmed_str(data)
-    elif name.endswith(".csv"):
-        nights = read_csv(data.decode("utf-8-sig"))
-    elif name.endswith(".json"):
-        nights = read_json(data.decode("utf-8-sig"))
-    else:
-        raise ValueError("Upload a ResMed STR.edf, a .csv or a .json file.")
-    if not nights:
-        raise ValueError("No nights found in the file.")
-    return sorted(nights, key=lambda n: n.date)
 
 
 def to_csv(nights: list[Night]) -> str:

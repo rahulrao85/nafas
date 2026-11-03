@@ -222,6 +222,8 @@ details p { margin: var(--space-2) 0 0; }
 .skip-list { list-style: none; padding: 0; margin: var(--space-3) 0 0; font-size: var(--text-sm); color: var(--text-secondary); }
 .skip-list li { padding: var(--space-1) 0; }
 .sources-help { margin-top: var(--space-5); }
+.checks h3 { margin: var(--space-3) 0 var(--space-1); }
+.checks .skip-list li { display: flex; gap: var(--space-2); align-items: baseline; }
 .sources-help ul { padding-inline-start: var(--space-5); margin: var(--space-2) 0; }
 
 .toast { position: fixed; bottom: var(--space-5); left: 50%; transform: translateX(-50%); background: var(--text-primary); color: var(--bg-secondary); padding: var(--space-3) var(--space-5); border-radius: var(--radius-full); font-size: var(--text-sm); z-index: 1100; box-shadow: var(--modal-shadow); max-width: calc(100vw - 32px); }

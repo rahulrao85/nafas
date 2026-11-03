@@ -10,7 +10,7 @@ from datetime import date
 class Night:
     """One therapy night, dated by the evening it started."""
     date: date
-    usage_min: float = 0.0               # minutes of mask-on time; 0 = not used
+    usage_min: float | None = 0.0        # minutes of mask-on time; 0 = not used (None only before data checks)
     ahi: float | None = None             # apnoea-hypopnoea index, events/hour
     leak95_lpm: float | None = None      # 95th-percentile leak, L/min
     pressure95: float | None = None      # 95th-percentile pressure, cmH2O

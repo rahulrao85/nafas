@@ -53,7 +53,9 @@ flowchart LR
 | `weekly.py` | Monday–Sunday rows: nights, goal met, average hours, leak nights, AHI, lapses and comebacks, steps | |
 | `outcomes.py` | Persistence, retention, recovery rate and time, usage and AHI change, steps that helped; groups by attribute | Equity gap counts only groups of 20 or more |
 | `coach.py` | Fact brief → provider → safety check → note or template | Brief holds numbers and the chosen step only; no free text from the person goes to the LLM |
-| `safety.py` | Bans pressure changes, diagnosis, medication, stopping therapy, blame and links; length cap; crisis keywords (EN and AR) | |
+| `safety.py` | Bans pressure changes, diagnosis, medication, stopping therapy, blame and links; length cap. Emergency wording in notes (EN + AR, normalised spelling, simple negation) | Benchmarked: sensitivity 100% on 47 phrasings ([BENCHMARK.md](BENCHMARK.md)) |
+| `quality.py` | Data checks on every upload: impossible values, suspect units, duplicates, gaps, missing fields, conflicting sources | Every problem is a warning naming the checks it turns off; never a crash or a silent drop. Stops only when nightly usage is missing everywhere |
+| `benchmark.py` | 129 labelled cases (89 hard) across emergency wording, the care-team flag, detectors and barriers | Each failure names its module; `scripts/benchmark.py` writes the results |
 | `llm/` | `claude` (default), `azure`, `offline` behind one interface | Provider picked by `NAFAS_LLM` |
 | `server.py` | Flask JSON API plus static UI | State held per browser session, in memory only; uploads up to 64 MB and 2,500 files per request; coach endpoint limited to 20 calls a minute |
 | `static/` | One HTML page, plain JS, design tokens | Light and dark, English and Arabic (RTL), checked at 375 px |
@@ -77,6 +79,37 @@ The loop is a pure function: `(profile, nights, check-ins, choices, date) → st
 | POST | `/api/upload-samples` | The same path, fed with the synthetic sample files (demo button) |
 | POST | `/api/forget` | Deletes everything from the session |
 | GET | `/api/cohort` | Synthetic cohort outcome report |
+
+## Data checks: flag, don't crash, don't guess
+
+| Problem | What Nafas does | The person sees |
+|---|---|---|
+| Nightly usage missing on some nights | Leaves those nights out (can't tell used from not used) | A warning with the count |
+| Nightly usage missing everywhere | **Stops**: every decision needs it | What's missing and which column to add |
+| Impossible value (AHI 999, leak −5, pressure 60) | Ignores that value; the night still counts | A warning naming the field and the checks it affects |
+| Impossible usage (over 24 h) | Counts the night as not used (the conservative reading) | A warning |
+| Hours in a minutes column, L/s in an L/min column | **Doesn't convert on a guess**: a wrong guess could hide a lapse or invent a leak. `usage_hours` and `leak95_lps` columns are converted exactly | A warning saying which column name to use |
+| Duplicate nights | Keeps the most complete record | A warning with the dates |
+| Two sources disagree on a night | SD card wins over CSV/JSON | A warning with the count |
+| Gap of 7 nights or more | Counts as not used (a lapse is the safe assumption) | "If you did use CPAP, the card copy may be incomplete" |
+| A field missing everywhere (AHI, leak, start time, mask events, wearable) | Turns off only the checks that need it | Which check is off, and why it matters |
+| Readings on a 0-minute night | Dropped as noise | — |
+
+Warnings appear in the upload's "what we found" panel and on the Today page for uploaded data, in English or Arabic.
+
+## Integration with existing systems (described, not built)
+
+The Department of Health speaker at the webinar put weight on *ease of integration*. Nafas is built to sit next to existing systems, not replace them:
+
+- **JSON API, today.** Every view in the UI is a JSON endpoint (see API above): the state for any morning, the weekly view, outcomes and the consent-gated care-team summary. A clinic portal or patient app can call these directly, and the UI is just one client.
+- **Provider cloud feeds, for a pilot.** Equipment providers already hold nightly data in ResMed AirView or Philips Care Orchestrator. A partner export (daily CSV or API) maps straight onto `Night`, the same shape the SD-card reader produces. The data checks run unchanged. AirView finds the patient at risk; Nafas gives that patient a reason, a step and a comeback between calls.
+- **FHIR export (idea).** The care-team summary maps naturally onto HL7 FHIR R4:
+  - one `Observation` per night for usage, residual AHI and leak, with `effectiveDateTime` as the night and `device` referencing the CPAP;
+  - one `Observation` per week for adherence %;
+  - a `Flag` for the high-residual-AHI pattern;
+  - a `Communication` for the person's own note, only with consent.
+
+  Codes (LOINC or SNOMED CT, else a local code system) would be agreed with the pilot partner and the Malaffi / Abu Dhabi health-information exchange profile, not invented here.
 
 ## From prototype to pilot
 

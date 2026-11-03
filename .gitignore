@@ -22,3 +22,4 @@ FHC_MASTER.md
 cpap_data.json
 myair*.json
 cpap_history.*
+_local/

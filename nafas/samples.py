@@ -25,6 +25,13 @@ FAKE_MAC = "00:00:5E:00:53:01"               # documentation-range MAC
 FAKE_DOB = "1980-01-01"
 
 
+
+def _put(z: zipfile.ZipFile, name: str, data) -> None:
+    """Write a zip member with a fixed timestamp, so sample files are byte-for-byte reproducible."""
+    info = zipfile.ZipInfo(name, date_time=(2026, 11, 3, 0, 0, 0))
+    info.compress_type = zipfile.ZIP_DEFLATED
+    z.writestr(info, data)
+
 def _nights():
     return [n for n in persona_layla()["nights"] if FIRST <= n.date <= LAST]
 
@@ -99,10 +106,10 @@ def resmed_card_zip(nights) -> bytes:
     """What a copied SD card looks like: STR.edf, an identity file, settings and per-night DATALOG files."""
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr("SD CARD/STR.edf", resmed_str_edf(nights))
-        z.writestr("SD CARD/Identification.tgt", f"#SRN {FAKE_SERIAL}\n#PNA AirSense 10 AutoSet\n")
-        z.writestr("SD CARD/SETTINGS/CGL.tgt", "synthetic settings\n")
-        z.writestr("SD CARD/DATALOG/20261101/20261101_231500_BRP.edf", b"0" + b" " * 255)
+        _put(z, "SD CARD/STR.edf", resmed_str_edf(nights))
+        _put(z, "SD CARD/Identification.tgt", f"#SRN {FAKE_SERIAL}\n#PNA AirSense 10 AutoSet\n")
+        _put(z, "SD CARD/SETTINGS/CGL.tgt", "synthetic settings\n")
+        _put(z, "SD CARD/DATALOG/20261101/20261101_231500_BRP.edf", b"0" + b" " * 255)
     return buf.getvalue()
 
 
@@ -164,7 +171,7 @@ def garmin_zip(nights) -> bytes:
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         for n in nights:
             if n.wearable_sleep_min:
-                z.writestr(f"GARMIN/SLEEP/{n.date.isoformat()}-sleep.fit", garmin_sleep_fit(n))
+                _put(z, f"GARMIN/SLEEP/{n.date.isoformat()}-sleep.fit", garmin_sleep_fit(n))
     return buf.getvalue()
 
 
@@ -195,8 +202,8 @@ def gadgetbridge_zip(nights) -> bytes:
     db = con.serialize()
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr("database/Gadgetbridge", db)
-        z.writestr("preferences/devicesettings_synthetic.xml", "<map/>")
+        _put(z, "database/Gadgetbridge", db)
+        _put(z, "preferences/devicesettings_synthetic.xml", "<map/>")
     return buf.getvalue()
 
 
@@ -253,8 +260,8 @@ def apple_export_zip(nights) -> bytes:
            + "\n".join(rows) + "\n</HealthData>\n")
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr("apple_health_export/export.xml", xml)
-        z.writestr("apple_health_export/export_cda.xml", "<ClinicalDocument/>")
+        _put(z, "apple_health_export/export.xml", xml)
+        _put(z, "apple_health_export/export_cda.xml", "<ClinicalDocument/>")
     return buf.getvalue()
 
 
