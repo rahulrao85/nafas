@@ -44,11 +44,12 @@ No API key is needed: without one, coach notes come from the reviewed template. 
 
 | Command | What |
 |---|---|
-| `python -m pytest -q` | 69 tests, about 10 s |
+| `python -m pytest -q` | 75 tests |
 | `python scripts/benchmark.py` | The labelled benchmark |
 | `python scripts/run_demo.py` | The loop in a terminal, no browser |
 | `python scripts/make_samples.py` | A synthetic sample file for every data source → `data/samples/` |
 | `python scripts/generate_synthetic.py` | The declared synthetic personas and cohort → `data/synthetic/` |
+| `python run.py --port 5058 --hub PATH/hub.db` | Personal mode (off by default): your own nights from a home hub store, read-only, refreshed on load |
 
 ## A three-minute demo for judges
 
@@ -107,5 +108,5 @@ nafas/
   static/      single-page UI: light and dark, English and Arabic, 375 px and up
 scripts/       benchmark, run_demo, make_samples, generate_synthetic
 data/          synthetic personas and cohort; sample files for every source
-tests/         69 tests
+tests/         75 tests
 ```

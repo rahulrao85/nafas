@@ -114,7 +114,9 @@ The Department of Health speaker at the webinar put weight on *ease of integrati
 ## From prototype to pilot
 
 - **Data in:** today, one-click upload of an SD card, Garmin or Gadgetbridge files, a smart-ring export, Apple Health or Fitbit, from a phone or a PC. For a pilot: the equipment provider's cloud (ResMed AirView or myAir, Philips Care Orchestrator) through a partner agreement, or nightly SD sync from a companion app. The `Night` shape doesn't change.
-- **Personal use later (not built):** a later version can read straight from a home hub instead of uploads. The team lead's own hub already stores ring, watch and CPAP nights behind a token-scoped API (an `/ingest/v1` write path and a read tool, `query_readings`). A small `sources/hub.py` adapter would map those documents to `Night` through the same merge. The loop and UI stay as they are; only the "Add your data" step goes away.
+- **Personal mode (built, off by default):** `python run.py --port 5058 --hub <path to hub.db>` adds a "My data (hub)" persona. It reads a home hub's SQLite store read-only (no upload, no token) and re-reads whenever the store changes.
+  - It takes CPAP nights plus any ring or watch sleep (`sources/hub.py`), through the same data checks and merge as uploads.
+  - Without `--hub` (or `NAFAS_PERSONAL_HUB=1` + `NAFAS_HUB_DB`), nothing changes: the demo and the repo hold no personal data.
 - **Hosting:** a stateless container. Keep health data in a UAE region, as UAE health-data rules require. The model provider must be one that can serve from an approved region, or switch to the offline template.
 - **Scale:** the loop is O(nights) per person per day, with no cross-user state. Cohort analytics run as a batch job.
 - **Channels:** the nudge plan is channel-agnostic. A pilot would add push, WhatsApp or SMS, with the same one-a-day cap and quiet hours.

@@ -35,6 +35,7 @@ LABELS = {
     "collector": "Smart ring (Collector export)",
     "apple_health": "Apple Health export",
     "fitbit": "Fitbit / Google sleep",
+    "hub": "Home hub (CPAP nights)",
 }
 
 # Files on a ResMed card we skip on purpose. Identification.* and SETTINGS hold the device serial.
@@ -103,7 +104,7 @@ def ingest(files: list[tuple[str, bytes]], tz_offset_min: int = 0, pre_skipped: 
     rep = Report(skipped=list(pre_skipped or []))
     budget = Budget()
     cpap_by_source: list[tuple[str, list[Night]]] = []
-    wear: dict[str, dict] = {k: {"sleep": {}, "hrv": {}, "rhr": {}} for k in WEARABLE_PRIORITY}
+    wear = empty_wear()
 
     def add_cpap(kind, ns, bad_rows=()):
         if bad_rows:
@@ -184,6 +185,15 @@ def ingest(files: list[tuple[str, bytes]], tz_offset_min: int = 0, pre_skipped: 
         ds = sorted(g.pop("dates"))
         rep.found.append({**g, "nights": len(ds), "first": ds[0].isoformat() if ds else None,
                           "last": ds[-1].isoformat() if ds else None})
+    return finish(rep, cpap_by_source, wear)
+
+
+def empty_wear() -> dict[str, dict]:
+    return {k: {"sleep": {}, "hrv": {}, "rhr": {}} for k in WEARABLE_PRIORITY}
+
+
+def finish(rep: Report, cpap_by_source: list[tuple[str, list[Night]]], wear: dict) -> Report:
+    """Shared last step for uploads and the personal hub: merge CPAP, attach wearables, final checks."""
     if any(w.severity == "stop" for w in rep.warnings) and not any(ns for _, ns in cpap_by_source):
         rep.error = "no_usage"
         return rep
@@ -196,7 +206,7 @@ def ingest(files: list[tuple[str, bytes]], tz_offset_min: int = 0, pre_skipped: 
     return rep
 
 
-CPAP_PRIORITY = ["resmed_str", "nafas_csv", "nafas_json"]
+CPAP_PRIORITY = ["resmed_str", "hub", "nafas_csv", "nafas_json"]
 
 
 def _merge_cpap(by_source: list[tuple[str, list[Night]]], rep: Report) -> dict[date, Night]:

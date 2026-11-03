@@ -21,6 +21,7 @@ from .barriers import BARRIERS
 from .barriers import label as barrier_label
 from .engine import fill_gaps, status_of
 from .ingest import CSV_COLUMNS, to_csv
+from .sources import hub
 from .sources import ingest as ingest_sources
 from .i18n import dmy, tr
 from .llm import get_provider
@@ -55,10 +56,42 @@ def _sid() -> str:
     return session["sid"]
 
 
+_HUB: dict = {}
+HUB_ID = "hub"
+
+
+def _hub_data() -> dict | None:
+    """Personal mode only: the hub's nights, re-read whenever the store changes."""
+    if not hub.enabled():
+        return None
+    path = hub.db_path()
+    sig = hub.signature(path)
+    if _HUB.get("sig") != sig:
+        try:
+            rep = hub.load(path)
+        except Exception as e:  # noqa: BLE001 - a missing or locked store must not take the app down
+            _HUB.update(sig=None, data=None, error=f"{type(e).__name__}")
+            return None
+        if rep.error:
+            _HUB.update(sig=sig, data=None, error=rep.error)
+            return None
+        n = rep.nights
+        first, last = dmy(n[0].date), dmy(n[-1].date)
+        _HUB.update(sig=sig, error=None, data={
+            "profile": Profile(id=HUB_ID, display_name="My data (hub)",
+                               notes="Read from the home hub on every load; never stored by Nafas."),
+            "nights": n, "checkins": [], "warnings": rep.warnings,
+            "story": {"en": f"My data from the home hub: {len(n)} nights, {first} to {last}.",
+                      "ar": f"بياناتي من المحور المنزلي: {len(n)} ليلة، من {first} إلى {last}."}})
+    return _HUB.get("data")
+
+
 def _persona(pid: str) -> tuple[dict, dict]:
     """Return (persona data, this session's overlay for it)."""
     s = _SESSIONS[_sid()]
-    if pid in s["uploads"]:
+    if pid == HUB_ID and _hub_data() is not None:
+        data = _hub_data()
+    elif pid in s["uploads"]:
         data = s["uploads"][pid]
     elif pid in synthetic.PERSONAS:
         data = _base(pid)
@@ -117,7 +150,7 @@ def state_json(pid: str, as_of: date) -> dict:
     return {
         "persona": {"id": pid, "display_name": r.profile.display_name, "story": _story(data, lang),
                     "notes": r.profile.notes, "mask_type": r.profile.mask_type,
-                    "uploaded": pid in _SESSIONS[_sid()]["uploads"]},
+                    "uploaded": pid in _SESSIONS[_sid()]["uploads"] or pid == HUB_ID},
         "profile": r.profile.to_dict(),
         "range": {"first": data["nights"][0].date.isoformat(), "last": data["nights"][-1].date.isoformat()},
         "as_of": r.as_of.isoformat(),
@@ -172,6 +205,10 @@ def create_app() -> Flask:
     @app.get("/api/personas")
     def personas():
         out = []
+        h = _hub_data()
+        if h is not None:
+            out.append({"id": HUB_ID, "display_name": h["profile"].display_name, "story": _story(h, "en"),
+                        "nights": len(h["nights"]), "synthetic": False})
         for pid in synthetic.PERSONAS:
             d = _base(pid)
             out.append({"id": pid, "display_name": d["profile"].display_name, "story": _story(d, "en"),

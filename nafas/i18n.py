@@ -158,6 +158,7 @@ LABELS: dict[str, dict[str, str]] = {
     "collector": {"en": "ring", "ar": "الخاتم"},
     "apple_health": {"en": "Apple Health", "ar": "Apple Health"},
     "fitbit": {"en": "Fitbit", "ar": "Fitbit"},
+    "hub": {"en": "Home hub", "ar": "المحور المنزلي"},
 }
 
 

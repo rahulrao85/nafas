@@ -196,6 +196,8 @@
     $('#persona').innerHTML = r.personas.map((p) =>
       `<option value="${esc(p.id)}">${esc(p.display_name)} · ${p.nights}</option>`).join('');
     if (select) S.persona = select;
+    else if (!loadPersonas.done && r.personas.some((p) => p.id === 'hub')) S.persona = 'hub';   // personal mode opens on your own data
+    loadPersonas.done = true;
     $('#persona').value = S.persona;
   }
 
@@ -225,7 +227,7 @@
     const st = S.state;
     $('#asofLabel').textContent = fmt(addDays(st.as_of, 1));
     $('#story').textContent = st.persona.story;
-    $('#dataTag').textContent = st.persona.uploaded ? 'Your upload' : 'Synthetic data';
+    $('#dataTag').textContent = st.persona.uploaded ? 'Your data' : 'Synthetic data';
     $('#dataTag').className = 'tag ' + (st.persona.uploaded ? 'tag-warning' : 'tag-info');
     const llm = st.llm || {};
     $('#llmTag').textContent = llm.provider === 'offline' ? t('source_template') : `${llm.provider} · ${llm.model}`;
