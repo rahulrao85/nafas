@@ -1,0 +1,4 @@
+# Binary sample formats: never convert line endings
+*.edf binary
+*.fit binary
+*.zip binary
