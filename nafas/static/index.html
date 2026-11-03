@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nafas</title>
+  <meta name="description" content="A CPAP-adherence behaviour loop: notice a lapse or a leak, name the barrier, offer one small step, keep your progress.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=Noto+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/design-tokens.css">
+  <link rel="stylesheet" href="/static/app.css">
+  <script>
+    try {
+      var t = localStorage.getItem('nafas-theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('pre-dark');
+      }
+    } catch (e) {}
+  </script>
+</head>
+<body>
+<div class="app-container">
+  <header class="app-header">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="var(--primary-color)"/><path d="M20.5 9.5a7.5 7.5 0 1 0 2 9.2 6 6 0 0 1-2-9.2z" fill="#fff"/></svg>
+      <div>
+        <div class="brand-name">Nafas <span class="brand-sub" lang="ar">نَفَس</span></div>
+        <div class="brand-tag" data-i18n="tagline">CPAP habits that survive bad weeks</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <label class="sr-only" for="persona" data-i18n="person">Person</label>
+      <select id="persona" class="select" aria-label="Person"></select>
+      <button class="btn-icon" id="langBtn" type="button" aria-label="Switch language">ع</button>
+      <button class="btn-icon" id="settingsBtn" type="button" aria-label="Settings">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.6 7.6 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7.6 7.6 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.6 7.6 0 0 0 1.7 1l.3 2.6h4l.4-2.6a7.6 7.6 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
+      </button>
+      <button class="btn-icon theme-toggle" id="themeBtn" type="button" aria-label="Toggle dark mode">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section class="card timebar" aria-label="Replay">
+    <div class="timebar-top">
+      <div>
+        <div class="eyebrow" data-i18n="asof">Morning of</div>
+        <div class="asof" id="asofLabel">—</div>
+      </div>
+      <div class="timebar-btns">
+        <button class="btn btn-secondary btn-sm" id="prevDay" type="button" aria-label="Previous day">‹</button>
+        <button class="btn btn-secondary btn-sm" id="playBtn" type="button" data-i18n="play">Play</button>
+        <button class="btn btn-secondary btn-sm" id="nextDay" type="button" aria-label="Next day">›</button>
+        <button class="btn btn-secondary btn-sm" id="todayBtn" type="button" data-i18n="latest">Latest</button>
+      </div>
+    </div>
+    <input type="range" id="dayRange" class="range" min="0" max="0" value="0" aria-label="Replay date">
+    <p class="story"><span class="tag tag-info" id="dataTag">Synthetic data</span> <span id="story" dir="auto"></span></p>
+  </section>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" role="tab" data-tab="today" data-i18n="tab_today">Today</button>
+    <button class="tab" role="tab" data-tab="weekly" data-i18n="tab_weekly">Weekly</button>
+    <button class="tab" role="tab" data-tab="outcomes" data-i18n="tab_outcomes">Outcomes</button>
+    <button class="tab" role="tab" data-tab="about" data-i18n="tab_about">How it works</button>
+  </nav>
+
+  <main>
+    <!-- TODAY -->
+    <section class="panel active" id="panel-today" role="tabpanel">
+      <div class="stats-grid" id="stats"></div>
+      <div id="banners"></div>
+      <div class="two-col">
+        <div class="stack">
+          <article class="card" id="stepCard"></article>
+          <article class="card" id="coachCard">
+            <div class="card-head">
+              <h2 data-i18n="coach_title">Coach note</h2>
+              <span class="tag" id="llmTag"></span>
+            </div>
+            <p class="muted small" data-i18n="coach_help">The rules engine picks the step. AI only words it, and every draft is checked before you see it.</p>
+            <div id="coachOut" class="coach-out" aria-live="polite"></div>
+            <button class="btn btn-primary" id="coachBtn" type="button" data-i18n="coach_btn">Write tonight's note</button>
+          </article>
+        </div>
+        <div class="stack">
+          <article class="card" id="noticedCard"></article>
+          <article class="card" id="checkinCard">
+            <h2 data-i18n="checkin_title">What got in the way?</h2>
+            <p class="muted small" data-i18n="checkin_help">One tap. What you tell us outranks what the data guesses.</p>
+            <div class="chips" id="chips"></div>
+            <label class="field">
+              <span class="small muted" data-i18n="note_label">Anything else? (optional)</span>
+              <input class="input" id="noteInput" maxlength="280" type="text">
+            </label>
+            <div id="urgent" class="alert alert-danger" hidden></div>
+          </article>
+          <article class="card" id="nudgeCard"></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- WEEKLY -->
+    <section class="panel" id="panel-weekly" role="tabpanel">
+      <article class="card">
+        <div class="card-head"><h2 data-i18n="chart_title">Last 90 nights</h2>
+          <div class="legend small"><span class="lg lg-met"></span><span data-i18n="met">Goal met</span><span class="lg lg-partial"></span><span data-i18n="partial">Short</span><span class="lg lg-leak"></span><span data-i18n="leak">Large leak</span></div>
+        </div>
+        <div id="chart" class="chart"></div>
+      </article>
+      <article class="card">
+        <h2 data-i18n="weekly_title">Week by week</h2>
+        <div class="table-wrap"><table class="table rtable" id="weeklyTable"></table></div>
+      </article>
+      <div class="two-col">
+        <article class="card">
+          <h2 data-i18n="history_title">What we tried, and what helped</h2>
+          <div class="table-wrap"><table class="table rtable" id="historyTable"></table></div>
+        </article>
+        <article class="card">
+          <h2 data-i18n="learner_title">What works for you</h2>
+          <p class="muted small" data-i18n="learner_help">Each step is judged on the three nights after it. Better-scoring steps get offered first; others still get tried.</p>
+          <div id="learner"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- OUTCOMES -->
+    <section class="panel" id="panel-outcomes" role="tabpanel">
+      <article class="card">
+        <h2 data-i18n="person_outcomes">This person</h2>
+        <div class="stats-grid" id="personOutcomes"></div>
+      </article>
+      <article class="card">
+        <div class="card-head">
+          <h2 data-i18n="cohort_title">Synthetic cohort (150 people, 180 nights)</h2>
+          <button class="btn btn-secondary btn-sm" id="cohortBtn" type="button" data-i18n="cohort_btn">Run measurement</button>
+        </div>
+        <p class="muted small" id="cohortCaveat" data-i18n="cohort_help">Tests the outcome pipeline Challenge 09 asks for: persistence, recovery after lapses, retention, biomarker change and equity. Synthetic people, so not evidence of effect.</p>
+        <div id="cohort"></div>
+      </article>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="panel" id="panel-about" role="tabpanel">
+      <article class="card prose">
+        <h2>How the loop works</h2>
+        <ol class="loop-steps">
+          <li><strong>Notice.</strong> Each morning the engine scores last night and looks for a lapse (2 nights off, or 3 of 5 under goal), a slow decline (14-night average under 80% of the 28 before), a large leak, or leak creeping up.</li>
+          <li><strong>Name the barrier.</strong> It guesses why from the data — leak, mid-night removal, a trip (watch saw sleep, CPAP didn't), a moved bedtime — and shows the evidence. Your own answer always wins.</li>
+          <li><strong>One small step.</strong> One action from a reviewed library, tagged with its behaviour-change technique, with why it should help and where it stops helping.</li>
+          <li><strong>Judge and learn.</strong> Three nights later it checks whether things improved and updates what works for you. Two misses in a row on the same barrier move to a care-team step.</li>
+          <li><strong>Keep progress.</strong> Banked nights never go down. A lone short night doesn't break your run. A lapse opens a comeback goal of one hour, not a reset to zero.</li>
+        </ol>
+        <h3>Safety lines</h3>
+        <ul>
+          <li>Never suggests a pressure change, medication, or stopping therapy. High residual AHI goes to your care team, in fixed wording.</li>
+          <li>AI only words the note. Drafts that break a rule are replaced by the reviewed template.</li>
+          <li>Notes that mention chest pain, trouble breathing or self-harm show an emergency message instead.</li>
+        </ul>
+        <h3>Your data</h3>
+        <ul>
+          <li>The demo runs on synthetic, fictional people only.</li>
+          <li>Uploads are parsed in memory for this session and deleted when you press Delete or the server stops.</li>
+          <li>Nothing is shared unless you turn on care-team sharing, and even then only a summary you can see first.</li>
+        </ul>
+        <p class="muted small">Not a medical device. Prototype for the Future Health Digital Innovation Challenge 2026, Wellbeing Challenge 09.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer small muted">
+    <span data-i18n="footer">Prototype. Not medical advice and not a medical device. Demo data is synthetic.</span>
+  </footer>
+</div>
+
+<!-- Settings drawer -->
+<div class="modal-overlay" id="settingsModal" hidden>
+  <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <button class="btn-icon modal-close" type="button" data-close aria-label="Close">×</button>
+    <div class="modal-header"><h2 id="settingsTitle" data-i18n="settings">Settings</h2>
+      <p class="muted small" data-i18n="settings_help">Your goals, your data, your notifications.</p></div>
+    <div class="modal-body">
+      <form id="settingsForm" class="form-grid">
+        <label class="field"><span data-i18n="goal">Nightly goal (hours)</span>
+          <input class="input" type="number" name="goal_hours" min="1" max="10" step="0.5"></label>
+        <label class="field"><span data-i18n="language">Language</span>
+          <select class="select" name="language"><option value="en">English</option><option value="ar">العربية</option></select></label>
+        <label class="field"><span data-i18n="nudge_hour">Nudge time</span>
+          <input class="input" type="number" name="nudge_hour" min="0" max="23"></label>
+        <label class="field"><span data-i18n="quiet">Quiet hours (from–to)</span>
+          <span class="inline"><input class="input" type="number" name="quiet_start" min="0" max="23"><input class="input" type="number" name="quiet_end" min="0" max="23"></span></label>
+        <label class="switch"><input type="checkbox" name="nudges_enabled"><span data-i18n="nudges">Evening nudges (max one a day)</span></label>
+        <label class="switch"><input type="checkbox" name="use_llm"><span data-i18n="use_llm">Let AI word my notes</span></label>
+        <label class="switch"><input type="checkbox" name="share_with_care_team"><span data-i18n="share">Allow a care-team summary</span></label>
+        <button class="btn btn-primary" type="submit" data-i18n="save">Save</button>
+      </form>
+      <hr class="sep">
+      <div class="stack">
+        <button class="btn btn-secondary" id="summaryBtn" type="button" data-i18n="summary_btn">Preview care-team summary</button>
+        <pre class="summary" id="summaryOut" hidden></pre>
+        <form id="uploadForm" class="upload">
+          <label class="field"><span data-i18n="upload">Try your own data (ResMed STR.edf, CSV or JSON)</span>
+            <input class="input" type="file" name="file" accept=".edf,.csv,.json"></label>
+          <div class="inline"><button class="btn btn-secondary" type="submit" data-i18n="upload_btn">Load</button>
+            <a class="btn btn-secondary" href="/api/csv-template" data-i18n="template">CSV template</a></div>
+          <p class="muted small" data-i18n="upload_help">Parsed in memory for this session only. Never saved to disk.</p>
+        </form>
+        <button class="btn btn-danger" id="forgetBtn" type="button" data-i18n="forget">Delete everything from this session</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

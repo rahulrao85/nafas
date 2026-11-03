@@ -1,0 +1,35 @@
+{
+  "generator": "nafas/synthetic.py",
+  "real_data_used": false,
+  "personas": [
+    {
+      "id": "layla",
+      "display_name": "Layla (fictional)",
+      "nights": 121,
+      "first": "2026-07-05",
+      "last": "2026-11-02",
+      "story": "New user: rocky start → leak spell (care-team flag) → travel lapse and comeback → an October fade she came back from."
+    },
+    {
+      "id": "omar",
+      "display_name": "Omar (fictional)",
+      "nights": 790,
+      "first": "2024-09-04",
+      "last": "2026-11-02",
+      "story": "Long-term user: Ramadan bedtimes, Eid travel, a flu week, and cushions wearing out (leak creeping now)."
+    },
+    {
+      "id": "ravi",
+      "display_name": "Ravi (fictional)",
+      "nights": 150,
+      "first": "2026-06-06",
+      "last": "2026-11-02",
+      "story": "Shift worker: day sleeps, weekend misses, 'I feel fine' — and a lapse right now."
+    }
+  ],
+  "cohort": {
+    "people": 150,
+    "nights_each": 180,
+    "file": "cohort_profiles.json (attributes only; nights regenerate from seed 7)"
+  }
+}

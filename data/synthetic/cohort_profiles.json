@@ -1,0 +1,1052 @@
+[
+  {
+    "id": "c000",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c001",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c002",
+    "language": "ar",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c003",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c004",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c005",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c006",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c007",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c008",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c009",
+    "language": "ar",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c010",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c011",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c012",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c013",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c014",
+    "language": "ar",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c015",
+    "language": "ar",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c016",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c017",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": true,
+    "archetype": "shift"
+  },
+  {
+    "id": "c018",
+    "language": "other",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c019",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c020",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c021",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c022",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c023",
+    "language": "ar",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c024",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c025",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c026",
+    "language": "other",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c027",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c028",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c029",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c030",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c031",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c032",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c033",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": true,
+    "archetype": "shift"
+  },
+  {
+    "id": "c034",
+    "language": "other",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c035",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c036",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c037",
+    "language": "other",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c038",
+    "language": "ar",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c039",
+    "language": "other",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c040",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c041",
+    "language": "en",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c042",
+    "language": "ar",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c043",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": true,
+    "archetype": "shift"
+  },
+  {
+    "id": "c044",
+    "language": "other",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c045",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c046",
+    "language": "ar",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c047",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c048",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c049",
+    "language": "ar",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c050",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c051",
+    "language": "en",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c052",
+    "language": "other",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c053",
+    "language": "other",
+    "age_band": "55-64",
+    "shift_worker": true,
+    "archetype": "shift"
+  },
+  {
+    "id": "c054",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c055",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c056",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c057",
+    "language": "ar",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c058",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c059",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": true,
+    "archetype": "shift"
+  },
+  {
+    "id": "c060",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c061",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c062",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c063",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c064",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c065",
+    "language": "ar",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c066",
+    "language": "other",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c067",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c068",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c069",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c070",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c071",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c072",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c073",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c074",
+    "language": "other",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c075",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c076",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c077",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c078",
+    "language": "other",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c079",
+    "language": "other",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c080",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c081",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c082",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c083",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c084",
+    "language": "other",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c085",
+    "language": "other",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c086",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c087",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c088",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c089",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c090",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c091",
+    "language": "other",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c092",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": true,
+    "archetype": "shift"
+  },
+  {
+    "id": "c093",
+    "language": "ar",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c094",
+    "language": "other",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c095",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c096",
+    "language": "en",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c097",
+    "language": "en",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c098",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c099",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c100",
+    "language": "en",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c101",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c102",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c103",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c104",
+    "language": "en",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c105",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c106",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c107",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c108",
+    "language": "ar",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c109",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c110",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c111",
+    "language": "en",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c112",
+    "language": "other",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c113",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": true,
+    "archetype": "shift"
+  },
+  {
+    "id": "c114",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c115",
+    "language": "ar",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c116",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c117",
+    "language": "other",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c118",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c119",
+    "language": "en",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c120",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": true,
+    "archetype": "shift"
+  },
+  {
+    "id": "c121",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c122",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "dropout"
+  },
+  {
+    "id": "c123",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c124",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c125",
+    "language": "other",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c126",
+    "language": "en",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c127",
+    "language": "ar",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c128",
+    "language": "ar",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c129",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c130",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c131",
+    "language": "ar",
+    "age_band": "35-44",
+    "shift_worker": true,
+    "archetype": "shift"
+  },
+  {
+    "id": "c132",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": true,
+    "archetype": "shift"
+  },
+  {
+    "id": "c133",
+    "language": "en",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c134",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c135",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c136",
+    "language": "en",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c137",
+    "language": "ar",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c138",
+    "language": "other",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c139",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c140",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c141",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c142",
+    "language": "ar",
+    "age_band": "45-54",
+    "shift_worker": true,
+    "archetype": "shift"
+  },
+  {
+    "id": "c143",
+    "language": "ar",
+    "age_band": "55-64",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c144",
+    "language": "en",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "fader"
+  },
+  {
+    "id": "c145",
+    "language": "en",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "steady"
+  },
+  {
+    "id": "c146",
+    "language": "en",
+    "age_band": "45-54",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c147",
+    "language": "ar",
+    "age_band": "65+",
+    "shift_worker": false,
+    "archetype": "lapser"
+  },
+  {
+    "id": "c148",
+    "language": "other",
+    "age_band": "35-44",
+    "shift_worker": false,
+    "archetype": "rocky_start"
+  },
+  {
+    "id": "c149",
+    "language": "ar",
+    "age_band": "25-34",
+    "shift_worker": false,
+    "archetype": "lapser"
+  }
+]

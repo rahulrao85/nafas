@@ -1,0 +1,5 @@
+flask>=3.0
+anthropic>=1.0        # default LLM provider (Claude)
+openai>=1.50          # optional: Azure OpenAI provider
+python-dotenv>=1.0    # optional: load .env in run.py
+pytest>=8.0           # tests

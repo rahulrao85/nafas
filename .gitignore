@@ -1,0 +1,22 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Local planning notes (personal decisions, not for judges): kept on disk, never pushed
+FHC_MASTER.md
+
+# Never add real CPAP data or exports to this project
+*.edf
+*.db
+*.sqlite
+cpap_data.json
+myair*.json
+cpap_history.*
