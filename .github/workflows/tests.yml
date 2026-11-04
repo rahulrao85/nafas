@@ -1,0 +1,53 @@
+name: tests
+
+# Runs the test suite and the labelled benchmark from a clean checkout, the way the README says to.
+# No secrets are referenced, so no API key is ever present: coach notes and answers come from the
+# reviewed offline template, exactly as on a judge's machine with nothing configured.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install (README "Run it")
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          pip install -r requirements.txt
+          echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+
+      - name: pytest
+        run: python -m pytest -q
+
+      - name: Benchmark
+        run: python scripts/benchmark.py
+
+      - name: Benchmark results match the committed docs
+        run: git diff --exit-code docs/BENCHMARK_RESULTS.md
