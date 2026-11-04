@@ -2,3 +2,7 @@
 *.edf binary
 *.fit binary
 *.zip binary
+
+# Generated data: LF everywhere, so regenerating on Windows or Linux gives the same bytes
+data/**/*.csv text eol=lf
+data/**/*.json text eol=lf

@@ -173,7 +173,7 @@ def read_json(text: str, bad: list | None = None) -> list[Night]:
 
 def to_csv(nights: list[Night]) -> str:
     buf = io.StringIO()
-    w = csv.DictWriter(buf, fieldnames=CSV_COLUMNS)
+    w = csv.DictWriter(buf, fieldnames=CSV_COLUMNS, lineterminator="\n")  # same bytes on every OS
     w.writeheader()
     for n in nights:
         w.writerow({k: ("" if v is None else v) for k, v in n.to_dict().items()})

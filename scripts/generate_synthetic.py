@@ -23,9 +23,9 @@ def main() -> None:
     manifest = {"generator": "nafas/synthetic.py", "real_data_used": False, "personas": [], "cohort": {}}
     for pid, make in synthetic.PERSONAS.items():
         p = make()
-        (OUT / f"{pid}_nights.csv").write_text(to_csv(p["nights"]), encoding="utf-8")
+        (OUT / f"{pid}_nights.csv").write_text(to_csv(p["nights"]), encoding="utf-8", newline="\n")
         (OUT / f"{pid}_checkins.json").write_text(
-            json.dumps([c.to_dict() for c in p["checkins"]], ensure_ascii=False, indent=2), encoding="utf-8")
+            json.dumps([c.to_dict() for c in p["checkins"]], ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
         manifest["personas"].append({
             "id": pid, "display_name": p["profile"].display_name, "nights": len(p["nights"]),
             "first": p["nights"][0].date.isoformat(), "last": p["nights"][-1].date.isoformat(),
@@ -37,10 +37,10 @@ def main() -> None:
         for n in u["nights"]:
             rows.append(n)
     (OUT / "cohort_profiles.json").write_text(
-        json.dumps([{"id": u["profile"].id, **u["profile"].tags} for u in users], indent=2), encoding="utf-8")
+        json.dumps([{"id": u["profile"].id, **u["profile"].tags} for u in users], indent=2), encoding="utf-8", newline="\n")
     manifest["cohort"] = {"people": len(users), "nights_each": len(users[0]["nights"]),
                           "file": "cohort_profiles.json (attributes only; nights regenerate from seed 7)"}
-    (OUT / "MANIFEST.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    (OUT / "MANIFEST.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
     print(f"Wrote {len(synthetic.PERSONAS)} personas + cohort manifest to {OUT}")
 
 
