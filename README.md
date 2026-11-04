@@ -35,12 +35,16 @@ Bad data never crashes the app and is never silently dropped. Each problem becom
 
 ## Run it
 
-Requires Python 3.10 or later.
+Requires Python 3.11 or later. Install into a virtual environment: recent Debian and Ubuntu refuse a system-wide `pip install`, and there `python` and `pip` exist only inside one.
 
 ```bash
+python3 -m venv .venv              # Debian/Ubuntu: sudo apt install python3-venv first
+source .venv/bin/activate
 pip install -r requirements.txt
 python run.py                      # → http://127.0.0.1:5057
 ```
+
+Ubuntu 22.04 ships Python 3.10: run `sudo apt install python3.11 python3.11-venv`, then create the environment with `python3.11 -m venv .venv`.
 
 No API key is needed: without one, coach notes and answers come from the reviewed template. To use a model: Claude (default) via `ANTHROPIC_API_KEY` or `ant auth login`; Gemini with `NAFAS_LLM=gemini` plus `NAFAS_GEMINI_VERTEX_PROJECT` (Vertex AI through your gcloud login, no key stored) or `NAFAS_GEMINI_API_KEY`; `NAFAS_LLM=azure` for Azure OpenAI; `NAFAS_LLM=offline` forces the template. Any provider failure falls back to the template and says why (see `.env.example`).
 

@@ -17,7 +17,7 @@ The submission asks for "a clear statement of your assumptions, dependencies, an
 
 | Dependency | Needed for | Without it |
 |---|---|---|
-| Python 3.10+, Flask | Running the app | — |
+| Python 3.11+, Flask | Running the app | — |
 | `anthropic` SDK and a Claude credential | AI-worded notes (default) | Reviewed template is used; everything else works |
 | `openai` SDK and an Azure OpenAI deployment | Optional Azure provider | Same as above |
 | Google Fonts (Inter, Outfit, Noto Sans Arabic) | Typography | System fonts |
