@@ -11,18 +11,18 @@ The organisers provide no data. The rules ask teams to "use only data you have t
 | Where | `data/synthetic/`: `*_nights.csv`, `*_checkins.json`, `cohort_profiles.json`, `MANIFEST.json` |
 | Fields per night | date, usage minutes, residual AHI, 95th-percentile leak (L/min), 95th-percentile pressure (cmH2O), mask sessions, first session start time, optional wearable sleep minutes |
 | Personal data | None. Names are fictional and marked "(fictional)" in the app. No device serials, dates of birth or free text from real people |
-| Licence | Ours; free to use for evaluation |
+| Licence | Ours; released with the code under MIT (see LICENSE) |
 
 ### How the synthetic shape was set
 
-Parameter ranges were chosen to look like real effective therapy:
+The personas and the cohort are synthetic, generated with the fixed seeds above. Parameter ranges were chosen to look like effective therapy:
 
 - usage around 7–8 h a night on good nights;
 - residual AHI log-normal around 1 event/hour (roughly 0.6–1.9 across most nights);
 - 95th-percentile pressure 10–15 cmH2O;
 - leak at 0 on about half of nights, otherwise usually under 16 L/min, sometimes over 24.
 
-These ranges are consistent with the team lead's own long-term therapy summary (about 790 nights). Only aggregate ranges such as deciles informed the parameters. No night, date or identifier from any real person is copied, embedded or shipped, and the test suite fails if the code or data mentions the real-data folders (`tests/test_ingest_server.py::test_no_real_patient_data_is_referenced`).
+**Where these ranges come from.** They were sanity-checked against published reference thresholds (§3) and, at aggregate level only, against the team lead's own long-term experience of CPAP therapy. No night, date, identifier or value from any real person, the team lead included, is copied, embedded or shipped. The test suite fails if the code or data mentions the real-data folders or carries a real identifier (`tests/test_ingest_server.py::test_no_real_patient_data_is_referenced`).
 
 The personas' life events are scripted to exercise the loop: a rocky start, a leak spell with raised AHI, travel, Ramadan bedtime shifts (dates follow the 2025 and 2026 Ramadan calendars), Eid travel, a flu week, a cushion wearing out, shift work, and "felt fine without it". Because they are scripted, they show the loop working. They are **not** evidence that it changes behaviour.
 
@@ -34,7 +34,7 @@ One **Add your data** button takes files, a whole folder (desktop) or zips, from
 
 | Source | What you give it | What Nafas reads | Verified on |
 |---|---|---|---|
-| **ResMed SD card** (AirSense / AirCurve) | `STR.edf`, the whole card folder, or a zip of it | Per night: usage, residual AHI, 95th-percentile leak (L/s → L/min) and pressure, mask sessions, first mask-on time. `DATALOG` (per-breath detail) is skipped: the nightly summary is all the loop needs. `Identification.*` and `SETTINGS/` (they hold the device serial) are skipped on purpose | Synthetic card **and** a real card copy (365 nights, read on the team's PC only; matched an independent SD-card parser night for night) |
+| **ResMed SD card** (AirSense / AirCurve) | `STR.edf`, the whole card folder, or a zip of it | Per night: usage, residual AHI, 95th-percentile leak (L/s → L/min) and pressure, mask sessions, first mask-on time. `DATALOG` (per-breath detail) is skipped: the nightly summary is all the loop needs. `Identification.*` and `SETTINGS/` (they hold the device serial) are skipped on purpose | Synthetic card **and** a real card copy (read on the team's PC only, never shared; matched an independent SD-card parser night for night) |
 | **Garmin watch** | `.fit` sleep files (one per night), any folder or zip of them | Sleep minutes from `sleep_level` stages (light, deep, REM), overnight HRV (`hrv_status_summary`), resting HR (`monitoring_hr_data`). Device UTC offset from `timestamp_correlation`. The `file_id` message (watch serial) is never read | Synthetic FIT files built to the FIT 2.0 format (with CRCs) |
 | **Gadgetbridge** (Garmin without Garmin's cloud) | The "Export zip" from Gadgetbridge | `*SLEEP_STAGE_SAMPLE` and `*HRV_SUMMARY_SAMPLE` tables from its database, plus any `.fit` files in the zip. Device and user tables are not read | Synthetic database only: Gadgetbridge's schema varies by version, so treat this as best effort |
 | **Smart ring** (Collector app) | Its export: `{"documents": [...]}` JSON (Collector ingest contract v1) | `sleep.segment` stages → minutes asleep; `vitals.hr` (lowest overnight) and `vitals.hrv` (mean) inside the sleep window. Device addresses are not kept | Synthetic export only |
@@ -56,13 +56,13 @@ Uploads are read in memory for that browser session only. They are never written
 |---|---|
 | 4 h a night as the adherence bar; 70% of nights | Common adherence definition (e.g. US CMS: ≥4 h on 70% of nights in 30 consecutive days within the first 90 days) |
 | Large leak above 24 L/min (95th percentile) | ResMed device "large leak" threshold, as used in myAir and AirView reports |
-| Residual AHI 10 or more on several nights → clinician review | Conservative choice by the team; to be confirmed by the clinical advisor |
+| Residual AHI 10 or more on several nights → clinician review | Conservative heuristic chosen by the team; pending clinician review |
 | Behaviour-change technique labels | BCT Taxonomy v1 (Michie et al., 2013) |
 | CPAP non-adherence range 29–83% | Weaver TE, Grunstein RR. *Proc Am Thorac Soc* 2008;5:173–178 |
 
 ## 4. Data we do not use
 
 - No data from the organisers, partners or any health system.
-- No real patient's data, including the team lead's own CPAP exports.
+- No real patient's data. The team lead's own CPAP exports are not used, copied or shipped; their experience informed the parameter ranges at aggregate level only (§1).
 - No scraped forums or social media.
 - The legacy `cpap_data.json` from the original Sleep IQ repository holds real data. It is not copied into this project.

@@ -10,7 +10,7 @@ CPAP only works if it's used. Each party that loses when it isn't used is a poss
 |---|---|---|
 | **Sleep clinics / hospital sleep services** | Repeat visits, wasted titration, poor outcomes on their books | Adherence support for new starts; triage of who needs a call |
 | **Equipment providers (DMEs)** | Returned or abandoned devices; mask resupply that never happens; adherence-linked reimbursement in some markets | Leak and wear detection that turns into resupply orders and refits; fewer support calls |
-| **Payers / insurers** | Untreated OSA drives cardiovascular, road-safety and productivity costs | Better adherence across a population, **reported in aggregate only**. No individual penalties (see PRIVACY_SAFETY.md) |
+| **Payers / insurers** | Prescribed therapy that goes unused, with the health and cost consequences that follow *(size to validate)* | Better adherence across a population, **reported in aggregate only**. No individual penalties (see PRIVACY_SAFETY.md) |
 | **Employers' wellbeing programmes** | Sleepiness, absence | Not a target. The punitive-use risk is too high |
 
 **Start with B2B2C through a clinic or equipment provider.** They already hold the patient relationship and the device data feed, and they have a direct financial reason to care.
@@ -36,7 +36,7 @@ The challenge's "readiness assessment and potential pathway beyond the Challenge
 
 ## Why this team, why now
 
-- **Lived experience.** The team lead has used CPAP nightly for about two years and has hit every barrier in the library: leaks, worn cushions, Ramadan nights, travel, "felt fine" weeks.
+- **Lived experience.** The team lead uses CPAP every night and has hit the everyday barriers in the library: leaks, worn cushions, Ramadan nights, travel, "felt fine" weeks.
 - **Working code today.** A tested loop on synthetic data, an existing ResMed parser, and a model-agnostic design.
 - **Regional fit.** Bilingual from day one, with Ramadan and shift work handled as first-class cases.
 
@@ -44,7 +44,7 @@ The challenge's "readiness assessment and potential pathway beyond the Challenge
 
 | Risk | Mitigation |
 |---|---|
-| No clinician on the team | Recruit an advisor before submission (FHC_MASTER.md open item) |
+| No clinician on the team | Recruit a clinical advisor to review thresholds and emergency wording before any pilot |
 | Device data access depends on manufacturers | SD-card path works today; partner feeds via the clinic or equipment provider |
 | Regulatory reclassification as a medical device | Keep intended use to adherence support; never change therapy; clinical patterns go to clinicians |
 | LLM cost or availability | Template fallback is complete; LLM is optional |

@@ -29,7 +29,7 @@ flowchart LR
   L --> W[weekly.py]
   L --> O[outcomes.py<br/>person + cohort + equity]
   L --> K[coach.py<br/>fact brief]
-  K --> P{LLM provider<br/>claude · azure · offline}
+  K --> P{LLM provider<br/>claude · gemini · azure · offline}
   P --> S[safety.py<br/>output rules]
   S -- pass --> U[UI]
   S -- fail --> T[Reviewed template] --> U
@@ -54,9 +54,9 @@ flowchart LR
 | `outcomes.py` | Persistence, retention, recovery rate and time, usage and AHI change, steps that helped; groups by attribute | Equity gap counts only groups of 20 or more |
 | `coach.py` | Fact brief → provider → safety check → note or template | Brief holds numbers and the chosen step only; no free text from the person goes to the LLM |
 | `qa.py` | Ask about your data. **In:** emergency → emergency message; clinical decision (pressure, medication, diagnosis, stopping) → fixed care-team answer; neither reaches the model. **Model:** answers only from a numbers-only fact pack (last 14 nights, 8 weeks, progress, current step, lapses). **Out:** safety rules (pressure *advice* blocked, values allowed), every number must match the facts (rounding allowed), length cap, cut-off answers rejected; any failure → fixed data summary | Replies in the language of the question. Benchmarked (31 cases) and checked live (`scripts/qa_eval.py`) |
-| `safety.py` | Bans pressure changes, diagnosis, medication, stopping therapy, blame and links; length cap. Emergency wording in notes (EN + AR, normalised spelling, simple negation) | Benchmarked: sensitivity 100% on 47 phrasings ([BENCHMARK.md](BENCHMARK.md)) |
+| `safety.py` | Bans pressure changes, diagnosis, medication, stopping therapy, blame and links; length cap. Emergency wording in notes (EN + AR, normalised spelling, simple negation) | Benchmarked on team-authored phrasings: sensitivity 100% (47/47), specificity 96.7% (29/30) ([BENCHMARK.md](BENCHMARK.md)) |
 | `quality.py` | Data checks on every upload: impossible values, suspect units, duplicates, gaps, missing fields, conflicting sources | Every problem is a warning naming the checks it turns off; never a crash or a silent drop. Stops only when nightly usage is missing everywhere |
-| `benchmark.py` | 129 labelled cases (89 hard) across emergency wording, the care-team flag, detectors and barriers | Each failure names its module; `scripts/benchmark.py` writes the results |
+| `benchmark.py` | 160 labelled cases (110 hard) across emergency wording, the care-team flag, detectors, barriers and Q&A guardrails; 159 of 160 pass (the miss is a conservative emergency false positive) | Each failure names its module; `scripts/benchmark.py` writes the results |
 | `llm/` | `claude` (default), `gemini` (Vertex AI via gcloud token, or AI Studio key), `azure`, `offline` behind one interface | Provider picked by `NAFAS_LLM`; Gemini safety blocks and cut-off answers become errors, so the template is shown |
 | `server.py` | Flask JSON API plus static UI | State held per browser session, in memory only; uploads up to 64 MB and 2,500 files per request; coach endpoint limited to 20 calls a minute |
 | `static/` | One HTML page, plain JS, design tokens | Light and dark, English and Arabic (RTL), checked at 375 px |

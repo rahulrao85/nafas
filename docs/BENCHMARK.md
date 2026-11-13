@@ -36,7 +36,7 @@ The Q&A suite was written after the guardrails were built, so it is a developmen
 ## How it's built
 
 - **Every case states expected vs actual.** For example, "3 of 7 nights AHI ≥ 10 → flag", "AHI 999 on 3 nights → no flag, and the data check warns".
-- **Hard cases** (89 of 129) include:
+- **Hard cases** (110 of 160) include:
   - missing fields; impossible values (AHI 999, leak 9999, a 2,000-minute night, AHI −1);
   - hours typed into a minutes column; L/s typed into an L/min column;
   - duplicate nights; a 10-night gap in a card copy; data from two sources disagreeing;
@@ -56,11 +56,11 @@ We report the runs, not just the final score.
    - **Leak creep used reading counts, not calendar days,** so missing leak values shifted its windows. **Fix:** calendar windows.
    - **An impossible nightly use (2,000 min) dropped the night** and hid a lapse. **Fix:** it counts as "not used" (the conservative reading) and is reported.
 2. **Held-out run.** We wrote 26 new emergency cases after those fixes and ran them once, untouched. Sensitivity was **8/15**: phrasings like "I can hardly breathe", "can't catch my breath", "صدري يؤلمني" and "بدي أنتحر" were missed. **Lesson: keyword lists generalise poorly; a high score on your own cases overstates real coverage.** The misses were fixed and the held-out cases joined the set (marked `crisis-ho-*`).
-3. **Now: 128 / 129.**
+3. **Earlier snapshot: 128 / 129.** The current suite supersedes that run: **160 cases, 110 hard, 159 / 160 pass.** The one remaining failure is a conservative emergency false positive ("watched a film about someone who fainted"). See [BENCHMARK_RESULTS.md](BENCHMARK_RESULTS.md).
 
 ## Limits of this benchmark
 
-- The cases are synthetic and written by the team. A real evaluation needs cases written by clinicians and patients who didn't build the rules. The held-out run shows why.
+- **These are software checks on team-authored cases, not clinical validation**, and they are not evidence that Nafas improves adherence. The cases are synthetic and written by the team. A real evaluation needs cases written by clinicians and patients who didn't build the rules. The held-out run shows why.
 - Emergency detection is phrase matching. In a pilot it should be backed by a reviewed classifier and by human follow-up of every triggered note. Its job is to stop coaching and show the emergency number, never to triage.
 - Barrier inference is scored top-1 against the barrier we scripted. Real barriers overlap; a pilot should score "was the person's own answer in the top 2?".
 - The thresholds being tested (4 h, 24 L/min, AHI 10) are themselves awaiting clinical review.

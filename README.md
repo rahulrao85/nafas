@@ -14,11 +14,13 @@ Each morning Nafas:
 4. **Judges the step** on the next three nights, learns what works for this person, and brings in the care team after two misses.
 5. **Keeps progress.** Banked nights never reset; a lapse opens a one-hour comeback goal.
 
-The team lead has used CPAP nightly for two years. Every barrier in the library is one they have hit.
+The team lead uses CPAP every night and has hit the everyday barriers this library covers: leaks, worn cushions, travel, moved bedtimes, "felt fine" weeks.
 
-> Prototype. Not a medical device and not medical advice. The demo uses **synthetic, fictional people only**.
+> Prototype. Not a medical device and not medical advice. The demo uses **synthetic, fictional people only**: personas and a cohort generated with fixed seeds. Parameter ranges were sanity-checked against published reference thresholds and, at aggregate level only, the team lead's own long-term therapy experience; no real nights, dates, identifiers or values are copied ([DATA_SOURCES.md](docs/DATA_SOURCES.md)).
 
 ## Tested: 160 labelled cases, 110 of them hard
+
+These are **software checks on team-authored cases**, not clinical validation, and not evidence that Nafas improves adherence. The thresholds (4 h, 24 L/min, residual AHI 10) are heuristics pending clinician review.
 
 | What | Result |
 |---|---|
@@ -110,10 +112,14 @@ nafas/
   benchmark.py labelled cases and scoring
   i18n.py      engine messages in English and Arabic
   weekly.py, outcomes.py, samples.py, synthetic.py, models.py
-  llm/         claude (default) · azure · offline
+  llm/         claude (default) · gemini · azure · offline
   server.py    Flask API, session memory only
   static/      single-page UI: light and dark, English and Arabic, 375 px and up
 scripts/       benchmark, run_demo, make_samples, generate_synthetic
 data/          synthetic personas and cohort; sample files for every source
 tests/         86 tests
 ```
+
+## Licence
+
+MIT, copyright 2026 Rahul Rao. See [LICENSE](LICENSE). Third-party packages and fonts keep their own licences.

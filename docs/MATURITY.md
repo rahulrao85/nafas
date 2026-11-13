@@ -26,20 +26,20 @@ Nafas is a separate project with its own code base. From Sleep IQ v1 it takes th
 | Per-person learning (Thompson sampling) and escalation to care team | Built, tested |
 | Replayable morning loop: deterministic, auditable | Built, tested |
 | Nudge planner: one a day, quiet hours, frequency drops when ignored | Built, tested |
-| LLM made swappable: Claude (default), Azure OpenAI, offline template; output safety checks | Built, tested (Claude path checked up to authentication; no live key used in the build) |
+| LLM made swappable: Claude (default), Gemini (Vertex AI or AI Studio), Azure OpenAI, offline template; output safety checks | Built, tested (Claude path checked up to authentication; Gemini run live on Vertex AI, 11/11 Q&A answers passed every output check, 03-Nov-2026) |
 | Crisis-note detection (English and Arabic) | Built, tested |
 | Weekly adherence view, 90-night chart | Built |
 | Outcome pipeline with equity breakdown and confidence intervals | Built, tested |
 | Synthetic personas and cohort, with real data barred by a test | Built, tested |
 | UI: design tokens, light and dark, English and Arabic RTL, 375 px | Built, checked by hand in a browser |
 | Consent-gated care-team summary; session-only storage; delete everything | Built, tested |
-| ResMed `STR.edf` reader, carried over from v1 (identifiers dropped; now counts mask-on `Duration` rather than machine-on `OnDuration`; `-1` sentinels and date rounding fixed) | Carried over; tested on a synthetic card and checked locally on a real card copy (365 nights) |
+| ResMed `STR.edf` reader, carried over from v1 (identifiers dropped; now counts mask-on `Duration` rather than machine-on `OnDuration`; `-1` sentinels and date rounding fixed) | Carried over; tested on a synthetic card and checked locally on a real card copy (never shared or committed) |
 | One-click **Add your data**: files, folder or zip, from phone or PC; detection, merge, "what we found" report | Built, tested |
 | Garmin FIT, Gadgetbridge, smart-ring (Collector), Apple Health, Fitbit parsers | Built; tested on synthetic files only (no real exports were available) |
 | Upload safety: 64 MB cap, in-memory zip, bomb, traversal and nesting guards | Built, tested |
 | Arabic for every engine message (detections, evidence, outcomes, nudges) and the Outcomes tab | Built, tested (native review pending) |
 | Data checks: every bad input becomes a warning (impossible values, suspect units, duplicates, gaps, missing fields, conflicting sources); stops only when usage is missing everywhere | Built, tested |
-| Labelled benchmark: 129 cases (89 hard), safety-critical suites scored separately, failing module named | Built; 128/129 (one accepted false alarm) |
+| Labelled benchmark: 160 cases (110 hard), safety-critical suites scored separately, failing module named | Built; 159/160 (one accepted false alarm) |
 | Comparison with existing solutions; integration path (JSON API, provider feeds, FHIR idea) | Written ([EXISTING_SOLUTIONS.md](EXISTING_SOLUTIONS.md), [ARCHITECTURE.md](ARCHITECTURE.md)) |
 
 Code reused from v1: the EDF parsing approach only. Everything else in the `nafas` package is new.
@@ -50,7 +50,7 @@ Code reused from v1: the EDF parsing approach only. Everything else in the `nafa
 - Native Arabic review of the action library and UI strings.
 - A live Claude run with a key to tune the coach prompt; record example outputs and safety-check pass rates.
 - Accessibility pass: screen reader, keyboard, contrast.
-- Demo video (7 minutes, the length used in the finals format).
+- Demo video: 2:27 for the submission (the form allows under 3 minutes); a longer walkthrough for the finals format if shortlisted.
 
 ## Beyond the challenge (pilot readiness)
 

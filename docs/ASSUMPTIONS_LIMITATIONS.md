@@ -20,6 +20,8 @@ The submission asks for "a clear statement of your assumptions, dependencies, an
 | Python 3.11+, Flask | Running the app | — |
 | `anthropic` SDK and a Claude credential | AI-worded notes (default) | Reviewed template is used; everything else works |
 | `openai` SDK and an Azure OpenAI deployment | Optional Azure provider | Same as above |
+| A Gemini route: Vertex AI project + `gcloud` sign-in, or an AI Studio key (no extra package) | Optional Gemini provider (run live 03-Nov-2026: 11/11 Q&A answers passed every output check) | Same as above |
+| `fitdecode` | Reading Garmin `.fit` files | Garmin upload is unavailable; CPAP and ring uploads still work |
 | Google Fonts (Inter, Outfit, Noto Sans Arabic) | Typography | System fonts |
 | A browser | UI | `scripts/run_demo.py` shows the loop in a terminal |
 
@@ -40,7 +42,7 @@ No database, queue or cloud service is required to run the prototype.
 
 **Language and inclusion**
 
-- Arabic action and UI text is a **first draft** and needs native review with clinical vocabulary. Engine evidence strings ("No CPAP use for the last 3 nights") are English only in this prototype.
+- Arabic action and UI text is a **first draft** and needs native review with clinical vocabulary. Engine evidence strings ("No CPAP use for the last 3 nights") are translated too (`nafas/i18n.py`), under the same first-draft label.
 - Two languages so far. Urdu, Hindi, Malayalam and Tagalog matter in the UAE and are not done.
 - No formal accessibility audit yet; the UI uses semantic HTML, keyboard focus states, 40 px tap targets and reduced-motion support.
 
