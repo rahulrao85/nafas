@@ -1,0 +1,11 @@
+.env
+.env.*
+.git
+_local
+FHC_MASTER.md
+SUBMISSION_*.md
+**/__pycache__
+.pytest_cache
+tests
+docs
+scripts
